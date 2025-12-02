@@ -12,11 +12,11 @@ typedef double FLOAT;
 #include "wb_ptr.hpp"
 
 extern unsigned population_growth; ///< Default: 1; How population growth? (SPOSOBY ROZMNAŻANIA)
-							 ///< 0-as initial distribution,(0 - wg. inicjalnych proporcji)
-							 ///< 1-as local distribution,  (1 - lokalne rozmazanie losowe sąsiad)
-							 ///< 2-NOT IMPLEMENTED		  (2 - lokalne rozmazanie proporcjonalne do siły)
-							 ///< 3-as global distribution  (3 - globalne, losowy agent z całości populacji)
-							 ///< ONLY #1 IS USED FOR THE PAPER in 2015
+								   ///< 0-as initial distribution,(0 - wg. inicjalnych proporcji)
+							       ///< 1-as local distribution,  (1 - lokalne rozmazanie losowe sąsiad)
+							       ///< 2-NOT IMPLEMENTED		  (2 - lokalne rozmazanie proporcjonalne do siły)
+							       ///< 3-as global distribution  (3 - globalne, losowy agent z całości populacji)
+							       ///< ONLY #1 IS USED FOR THE PAPER in 2015
 
 /// Parameters for world of agents:
 //*//////////////////////////////////

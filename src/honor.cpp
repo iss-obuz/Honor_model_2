@@ -4,10 +4,10 @@
 /// \Contributors:
 ///    Andrzej Nowak, Michele Gelfand, Wojciech Borkowski
 /// Program designed by \author Wojciech Borkowski
+/// @date 2025-12-02 (last modification)
 //*//////////////////////////////////////////////////////////////////////////////
 
 //#include <process.h> //nie ma w GCC?
-#define PUBLIC_2015    //Public release for OSF / GitHub
 #define _USE_MATH_DEFINES //bo M_PI
 
 #include <cmath>
@@ -30,8 +30,8 @@
 using namespace std;
 using namespace wbrtm;
 
-const char* MODELNAME="Culture of honor";
-const char* VERSIONNUM="0.99 (04-07-2022)"
+const char* MODELNAME="Family honor";
+const char* VERSIONNUM="1.01 (2025)"
 #ifdef TESTING_RULE_LITERALS
 " RulesTestDiv"
 #else
@@ -173,12 +173,13 @@ FLOAT    EXTERNAL_REPLACE=0.0001;
 ///< Does reputation transfer to family members. (Czy reputacja przenosi się na członków rodziny)
 ///< \note
 ///< NOT USED IN THE 2015 ARTICLE. (NIE UŻYWANE W ARTYKULE z 2015)
-bool     MAFIAHONOR=false;
+///< Will be used in new paper.
+bool     MAFIAHONOR=true;
 
 #ifdef TESTING_RULE_LITERALS
 FLOAT	 TEST_DIVIDER=1.0; ///< Służy do modyfikacji stałych liczbowych używanych w regułach reakcji agenta
                            ///< wersja ze zmienną istotnie SPOWALNIA model
-                           ///< Ale może być też jako stała "rozliczana" podczas kompilacji
+                           ///< Ale może być też jako stała "rozliczana" podczas kompilacji.
 #endif
 
 FLOAT    RECOVERY_POWER=0.005;  ///< How much strength does he regain in step. (Jaką część siły odzyskuje w kroku)
@@ -212,8 +213,8 @@ FLOAT    CALLER_POPU=0.25;  ///< Epl.: 0.10;//.17;
 /// (Efektywność działań policji)
 FLOAT    POLICE_EFFIC=0.05; ///< Epl.: 0.05;//0.33;0.5//0.650;//0.950;
 
-/// Are we not using a "rational" strategy or only three basic ones?
-/// (Czy nie używamy strategii "racjonalnej" czy tylko trzech podstawowych)
+/// Are we using a "rational" strategy or only three basic ones?
+/// (Czy nie używamy strategii "racjonalnej", czy tylko trzech podstawowych)
 bool     ONLY3STRAT=false;
 
 

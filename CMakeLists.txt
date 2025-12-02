@@ -3,8 +3,8 @@
 # @authors: Wojciech Borkowski, Andrzej Nowak
 # @date: 2024-02-09 (last modifications)
 #
+cmake_minimum_required(VERSION 3.6)
 project(honor_model)
-cmake_minimum_required(VERSION 3.3)
 set(CMAKE_CXX_STANDARD 11) # See: https://matgomes.com/setting-cpp-standard-cmake/
 
 # Define WITHTOOLS if you want build helpers applications!
@@ -49,6 +49,7 @@ endif(WINDOWS)
 if(X11) # only for X11 LIB
     add_definitions( -DHAVE_X11 -DUSE_X11 )
     add_executable( honor
+                    src/HonorAgent.hpp
                     src/HonorAgent.cpp
                     src/honor.cpp
                    )
