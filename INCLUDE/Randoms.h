@@ -4,6 +4,7 @@
 /* USES_BSD_RANDOM - Random generator from BSD UNIX  */
 /* USES_SVR4_RANDOM - Random generator from System V UNIX */
 /* USES_STDC_RAND - Reandom generator buildin standard C */
+#define USES_BSD_RANDOM
 
 #ifndef _RANDOMS_H_INCLUDED_
 #define _RANDOMS_H_INCLUDED_  1
@@ -30,6 +31,7 @@ void   srandg(short int);    /* Seed setting for generator */
 
 #	define RANDOM_MAX  ( MAXINT )
 #	define RAND()      ( (int)((randg)()*RANDOM_MAX) )
+/// TO ŹLE DZIAŁA! Bo `randg()` czasem losuje 1.0 .
 #	define RANDOM(_I_) ( (int)((randg)()*(_I_)) )
 #	define SRAND(_P_)  { (srandg)(- (_P_) ); }
 #	define DRAND()	   ( (randg)() )

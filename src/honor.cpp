@@ -1,5 +1,5 @@
 ﻿/// Culture of honor evolution
-///
+///===========================
 /// \paper "The Evolutionary Basis of Honor Cultures
 /// \Contributors:
 ///    Andrzej Nowak, Michele Gelfand, Wojciech Borkowski
@@ -30,8 +30,12 @@
 using namespace std;
 using namespace wbrtm;
 
-const char* MODELNAME="Family honor";
-const char* VERSIONNUM="1.01 (2025)"
+/**
+ * Short name of the model.
+ */
+const char* MODEL_NAME="Family honor";
+const char* VER_NUMBER="1.01 (2025)"
+
 #ifdef TESTING_RULE_LITERALS
 " RulesTestDiv"
 #else
@@ -62,7 +66,7 @@ unsigned population_growth=1; ///< How population growth? (SPOSOBY ROZMNAŻANIA)
 							  ///<  2 - NOT IMPLEMENTED		 (2 - lokalne rozmazanie proporcjonalne do siły)
 							  ///<  3 - as global distribution (3 - globalne, losowy agent z całości)
 
-/// Variable expected by SymShell
+/// Variable expected by SymShell.
 int   WB_error_enter_before_clean=1; ///< Whether to give the operator a chance to read the end messages?
                                      ///< (Czy dać szanse operatorowi na poczytanie komunikatów końcowych)
 
@@ -75,6 +79,7 @@ int   WB_error_enter_before_clean=1; ///< Whether to give the operator a chance 
 
 /// LOG ZMIAN (for english version see changelog.md)
 ///
+/// * 1.01    - przywrócenie honoru rodzinnego. Chyba jakoś działa, ale do posprawdzania.
 /// * 1.00    - oczyszczona wersja do ostatecznej publikacji na GitHub'ie
 /// * 0.99    - wersja do upublicznienia na OSF
 /// * 0.45    - wersja z dziedziczeniem maksymalnej siły po rodzicu
@@ -122,12 +127,12 @@ int   WB_error_enter_before_clean=1; ///< Whether to give the operator a chance 
 ///		  TODO ? - lokalne rozmnażanie proporcjonalne do siły - ZBĘDNE ???
 ///
 ///		  Statystyki: ile razy agent jest atakowany i ile razy wygrał ,
-///						klastering indeks dla kultur.
+///					  indeks klasteringu dla kultur.
 ///       Częstości ataków na poszczególne grupy w czasie - bez selekcji, zysk indywidualny
 ///       Duża mapa z gradientem policji.
 ///
 ///		  ewentualnie różna aktywność honorowych. Nie zawsze muszą stawać, ale z prawdopodobieństwem
-///		 NA PÓŹNIEJ: ilość policji zależy od ilości ataków? Inny model – podatkowy – NIE TYM RAZEM.
+///		  NA PÓŹNIEJ: ilość policji zależy od ilości ataków? Inny model – podatkowy – NIE TYM RAZEM.
 ///
 /// * 0.251 - poprawienie błędu w liczeniu "always give up" na metryczce pliku log
 ///
@@ -160,11 +165,11 @@ FLOAT    MORTALITY=0.0009;    ///< Default: 0.01
 
 /// Base aggression level for HONORARY agents
 /// (Bazowy poziom agresji dla HONOROWYCH)
-FLOAT    HONOR_AGRESSION=0.01250; ///< Default: 0.015;
+FLOAT    HONOR_AGGRESSION=0.01250; ///< Default: 0.015;
 
-/// PROBABILITY LEVEL OF ACCIDENTAL AGGRESSIVE AGGRESSION. Basic, that is beyond the calculation who is stronger!
-/// (POZIOM PRAWD. PRZYPADKOWEJ AGRESJI AGRESYWNYCH. Bazowy, czyli poza kalkulacją kto silniejszy!)
-FLOAT    AGRES_AGRESSION=0.01250;
+/// PROBABILITY LEVEL OF ACCIDENTAL AGGRESSIVE AGENTS AGGRESSION. Basic, that is beyond the calculation who is stronger!
+/// (POZIOM PRAWD. PRZYPADKOWEJ AGRESJI AGRESYWNYCH AGENTÓW. Bazowy, czyli poza kalkulacją kto silniejszy!)
+FLOAT    AGRES_AGGRESSION=0.01250;
 
 /// What is the probability of accidentally changing to a completely different one
 /// (Jakie jest prawdopodobieństwo przypadkowej zamiany na zupełnie innego)
@@ -174,20 +179,20 @@ FLOAT    EXTERNAL_REPLACE=0.0001;
 ///< \note
 ///< NOT USED IN THE 2015 ARTICLE. (NIE UŻYWANE W ARTYKULE z 2015)
 ///< Will be used in new paper.
-bool     MAFIAHONOR=true;
+bool     FAMILY_HONOR=true;
 
 #ifdef TESTING_RULE_LITERALS
-FLOAT	 TEST_DIVIDER=1.0; ///< Służy do modyfikacji stałych liczbowych używanych w regułach reakcji agenta
+FLOAT	 TEST_DIVIDER=1.0; ///< Służy do modyfikacji stałych liczbowych używanych w regułach reakcji agenta.
                            ///< wersja ze zmienną istotnie SPOWALNIA model
                            ///< Ale może być też jako stała "rozliczana" podczas kompilacji.
 #endif
 
 FLOAT    RECOVERY_POWER=0.005;  ///< How much strength does he regain in step. (Jaką część siły odzyskuje w kroku)
 
-bool     InheritMAXPOWER=false; ///< Do new agents inherit max power, with hype, from a parent?
-                                ///< (Czy nowi agenci dziedziczą max power, z szumem, po rodzicu?)
-FLOAT    LIMITNOISE=0.3;        ///< Noise multiplier when inheriting the maximum strength from the parent.
-                                ///< (Mnożnik szumu przy dziedziczeniu maksymalnej siły po rodzicu)
+bool     Inherit_MAX_POWER=false; ///< Do new agents inherit max power, with hype, from a parent?
+                                  ///< (Czy nowi agenci dziedziczą max power, z szumem, po rodzicu?)
+FLOAT    NOISE_LIMIT=0.3;         ///< Noise multiplier when inheriting the maximum strength from the parent.
+                                  ///< (Mnożnik szumu przy dziedziczeniu maksymalnej siły po rodzicu)
 
 /// \category
 /// PARAMETERS FOR VALUE DISTRIBUTIONS FOR INDIVIDUAL AGENT FEATURES
@@ -273,7 +278,7 @@ unsigned VSIZ=9; ///< The maximum size of the agent side in a composite visualiz
 unsigned SSIZ=2; ///<Agent side in complementary (small) visualization
                  ///< Bok agenta w wizualizacji uzupełniającej (małej)
 
-bool  ConsoleLog=true;    ///< Whether it uses console event logging. Important for the start, then it can be switched.
+bool  ConsoleLog=false;    ///< Whether it uses console event logging. Important for the start, then it can be switched.
                           ///< (Czy używa logowania zdarzeń na konsoli. Ważne dla startu, potem się da przełączać)
 bool  VisShorLinks=false; ///< Do close links visualization? (Czy wizualizacja bliskich linków)
 bool  VisFarLinks=false;  ///< Do you visualize far links? (Czy wizualizacja dalekich linków)
@@ -282,7 +287,7 @@ bool  VisReputation=false; ///< Is it intended to outline the agents' reputation
 bool  VisDecision=false;   ///< Is it supposed to visualize the final decision? (Czy wizualizować ostatnią decyzję)
 
 bool  BatchPlotPower=false;   ///< Should it display the value of MnPower in batches or MnProportions?
-                              ///< (Czy wyświetlać w batchach wartość MnPower czy jednak MnProportions?)
+                              ///< (Czy wyświetlać w batch-ach wartość "MnPower" czy jednak "MnProportions"?)
 bool  Batch_true_color=false; ///< Whether true-color color scales or 256 colors of the rainbow?
                               ///< (Czy skale kolorów true-color czy 256 kolorów tęczy)
 
@@ -311,18 +316,18 @@ new OptionalParameter<long>(RandSeed,1,0x01FFFFFF,"RANDSEED","Use, if you want t
 new OptionalParameter<FLOAT>(MORTALITY,0,0.05,"MORTALITY","Ratio of agents randomly killed each step by other factors"), //Jakie jest prawdopodobieństwo przypadkowej śmierci
 new OptionalParameter<FLOAT>(EXTERNAL_REPLACE,0,0.05,"EXTREPLACE","Ratio of agents randomly replaced by random newcomers every step"), //Wymiana imigracyjno/emigracyjna MA�A MA BY�!
 new OptionalParameter<FLOAT>(USED_SELECTION,0,0.75,"SELECTION","Minimal level of strength required to survive"),//0.10; //Jak bardzo przegrani umieraj� (0 - brak selekcji w og�le)
-new OptionalParameter<FLOAT>(HONOR_AGRESSION,0,0.15,"HONAGRES","Probability of random aggression of HONOR agents"),//0.015;//Bazowy poziom agresji zale�ny od honoru
-new OptionalParameter<FLOAT>(AGRES_AGRESSION,0,0.15,"AGRAGRES","Probability of random aggression of AGGRESSIVE agents"),//0.015;//Bazowy poziom agresji zale�ny od honoru
+new OptionalParameter<FLOAT>(HONOR_AGGRESSION,0,0.15,"HONAGRES","Probability of random aggression of HONOR agents"),//0.015;//Bazowy poziom agresji zale�ny od honoru
+new OptionalParameter<FLOAT>(AGRES_AGGRESSION,0,0.15,"AGRAGRES","Probability of random aggression of AGGRESSIVE agents"),//0.015;//Bazowy poziom agresji zale�ny od honoru
 #ifndef PUBLIC_2015
 new OptionalParameter<unsigned>(population_growth,0,3,"GROWMODE","How population growth?\n\t  0-as initial distribution, 1-local distribution, 3-global distribution\n\t "),
 new OptionalParameter<bool>(HonorAgent::CzyTorus,false,true,"TORUS","Is the world topology toroidal or not"), //Czy geometria torusa czy wyspy z brzegami
-new OptionalParameter<bool>(InheritMAXPOWER,false,true,"INHERITPOWER","Do new agents inherit (with noise) max power from its parent?"),
-new OptionalParameter<bool>(MAFIAHONOR,false,true,"FAMILIES", "Is a family relationship taken into account in reputation changes?"),//Czy u�ywamy mechanizmu rodzinnego zmian reputacji
+new OptionalParameter<bool>(Inherit_MAX_POWER,false,true,"INHERITPOWER","Do new agents inherit (with noise) max power from its parent?"),
+new OptionalParameter<bool>(FAMILY_HONOR,false,true,"FAMILIES", "Is a family relationship taken into account in reputation changes?"),//Czy u�ywamy mechanizmu rodzinnego zmian reputacji
 #ifdef TESTING_RULE_LITERALS
 new OptionalParameter<FLOAT>(TEST_DIVIDER,1.0/3.0,1.0,"TEST_DIVIDER","For testing real meaning of arbitrary values used in rules"),
 #endif
 #endif
-//FLOAT    RECOVERY_POWER=0.005;//Jak� cz�� si�y odzyskuje w kroku
+//FLOAT    RECOVERY_POWER=0.005; //Jaką część siły odzyskuje w kroku czasu.
 new OptionalParameter<FLOAT>(RECOVERY_POWER,0.00001,0.5,"RECPOWER","How fast agent recovery for fight damage"),
 new OptionalParameter<FLOAT>(POLICE_EFFIC,0,1,"POLICEEF","Probability of efficient police intervention"),//=0.50;//0.650;//0.950; //Z jakim prawdopodobie�stwem wezwana policja obroni agenta
 new OptionalParameter<FLOAT>(BULLI_POPUL,0,1,"BULLYPR","Initial probability to born as bully agent"),//=-0.25;//0.2;//0.100;//Albo zero-jedynkowo. Jak 1 to decyduje rozk�ad sterowany BULLISM_LIMIT ("-" jest sygna�em zafiksowania w trybie batch
@@ -333,7 +338,7 @@ new OptionalParameter<bool>(ONLY3STRAT,false,true,"CALLPOLISREST","Is police cal
 																	"\n\t\tIf not the rational strategies take the rest to 100%"),
 new ParameterLabel("PARAMETERS FOR MULTIPLE SIMULATIONS (EXPLORATION/BATCH MODE)"),
 new OptionalParameter<bool>(batch_mode,false,true,"BATCH","To switch into parameter space batch mode"),
-//Nie ma jeszcze szablonu dla enumeracji wi�c chamski rzut na "unsigned int"
+//Nie ma jeszcze szablonu dla enumeracji więc chamski rzut na "unsigned int"
 //new OptionalParameter<unsigned>(*((unsigned*)&batch_sele),1,3,"BSELE","To switch batches bettwen SELECTION=1,HONORvsCPOLL=2,HONORvsAGRR=3"),
 //bool  batch_mode=true;       //Czy tryb pracy przeszukiwania przestrzeni parametr�w?
 //enum BAT_MODE {NO_BAT=0,BAT_SELECTION=1,BAT_HONORvsCPOLL=2,BAT_HONORvsAGRR=3} batch_sele=BAT_SELECTION;		  //Czy tryb przeszukiwania szuka po proporcjach czy po sile selekcji?
@@ -385,7 +390,7 @@ wb_pchar MakeFileName(const char* Core)
 {
 	wb_pchar SPom(1024);
 	SPom.prn("%s%sS%gF%cRA%gNK%gG%uT%u___MC%uST%uev%uRx%u_%u",
-		Core,(!batch_mode?"Mod":batch_names[batch_sele]),USED_SELECTION,(MAFIAHONOR?'y':'n'),HONOR_AGRESSION
+		Core,(!batch_mode?"Mod":batch_names[batch_sele]),USED_SELECTION,(FAMILY_HONOR?'y':'n'),HONOR_AGGRESSION
 		,
 		EXTERNAL_REPLACE,population_growth,HonorAgent::CzyTorus,
 		//...tu proporcje? na razie nie...
@@ -396,7 +401,7 @@ wb_pchar MakeFileName(const char* Core)
 /// Zapisanie wszystkich parametrów
 void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool FL=true)
 {
-	o<<MODELNAME<<"\tv.:"<<SEP<<VERSIONNUM;
+	o<<MODEL_NAME<<"\tv.:"<<SEP<<VER_NUMBER;
 	if(RandSeed>0)
 		o<<SEP<<"RANDSEED:"<<SEP<<RandSeed;
 	o<<ENDL<<Comment.c_str()<<ENDL;// Comment
@@ -419,13 +424,13 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
 	o<<"FLOAT"<<SEP<<"OUT_FAR_LINKS_PER_AGENT"<<SEP<<OUTFAR_LINKS_PER_AGENT<<ENDL;//Ile jest dodatkowych link�w jako u�amek liczby agent�w
 	o<<"FLOAT"<<SEP<<"RECOVERY_POWER"<<SEP<<RECOVERY_POWER<<ENDL;//Jak� cz�� si�y odzyskuje w kroku
 	o<<"uint "<<SEP<<"POP_GROWTH_MODE"<<SEP<<population_growth<<ENDL;//Rodzaj wzrostu populacji (z prop. bazowych,globalnych lub lokalnych)
-	o<<"FLOAT"<<SEP<<"HONOR_AGRESSION"<<SEP<<HONOR_AGRESSION<<ENDL;//0.950;
-	o<<"FLOAT"<<SEP<<"AGRES_AGRESSION"<<SEP<<AGRES_AGRESSION<<ENDL;//0.950;
+	o<<"FLOAT"<<SEP<<"HONOR_AGGRESSION"<<SEP<<HONOR_AGGRESSION<<ENDL;//0.950;
+	o<<"FLOAT"<<SEP<<"AGRES_AGGRESSION"<<SEP<<AGRES_AGGRESSION<<ENDL;//0.950;
 	o<<"FLOAT"<<SEP<<"EXTERNAL_REPLACE"<<SEP<<EXTERNAL_REPLACE<<ENDL;
 	o<<"FLOAT"<<SEP<<"MORTALITY"<<SEP<<MORTALITY<<ENDL;
 #ifndef PUBLIC_2015
-	o<<"bool"<<SEP<<"INHPOWLIMIT"<<SEP<<InheritMAXPOWER<<ENDL;//Czy nowi agenci dziedziczą (z szumem) max power po rodzicu?
-	o<<"FLOAT"<<SEP<<"LIMITNOISE"<<SEP<<LIMITNOISE<<ENDL; //Mnożnik szumu
+	o<<"bool"<<SEP<<"INH. POW. LIMIT"<<SEP<<Inherit_MAX_POWER<<ENDL; //Czy nowi agenci dziedziczą (z szumem) max power po rodzicu?
+	o<<"FLOAT"<<SEP<<"LIMIT of NOISE"<<SEP<<NOISE_LIMIT<<ENDL; //Mnożnik szumu
 #endif
 
 	if(batch_mode)
@@ -436,12 +441,12 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
 		o<<"FLOAT"<<SEP<<"PROPORTION_STEP"<<SEP<<PROPORTION_STEP
 				  <<SEP<<"PROPORTION_MIN "<<SEP<<PROPORTION_MIN
 				  <<SEP<<"PROPORTION_MAX "<<SEP<<PROPORTION_MAX<<SEP<<"Batch in ratio mode"<<SEP<<(Compensation_mode?"true":"false")<<ENDL;
-		o<<"FLOAT"<<SEP<<"SELECTION_STEP"<<SEP<<SELECTION_STEP//Selection exploration step=0.1;
-				  <<SEP<<"SELECTION_MIN "<<SEP<<SELECTION_MIN//Selection exploration minimum=0;
-				  <<SEP<<"SELECTION_MAX "<<SEP<<SELECTION_MAX<<ENDL;//Selection exploration maximum=1;
+		o<<"FLOAT"<<SEP<<"SELECTION_STEP"<<SEP<<SELECTION_STEP //Selection exploration step=0.1;
+				  <<SEP<<"SELECTION_MIN "<<SEP<<SELECTION_MIN //Selection exploration minimum=0;
+				  <<SEP<<"SELECTION_MAX "<<SEP<<SELECTION_MAX<<ENDL; //Selection exploration maximum=1;
 		o<<"uint "<<SEP<<"TYPE OF BATCH JOB:"<<SEP<<batch_sele<<SEP<<batch_names[batch_sele]<<ENDL;
-		o<<"FLOAT"<<SEP<<"Default POLICE_EFFIC "<<SEP<<POLICE_EFFIC<<ENDL;	//Z jakim prawdopodobie�stwem wezwana policja obroni agenta
-		o<<"FLOAT"<<SEP<<"Default USE_SELECTION"<<SEP<<USED_SELECTION<<ENDL; //Jak bardzo przegrani umieraj� (0 - brak selekcji w og�le)
+		o<<"FLOAT"<<SEP<<"Default POLICE_EFFIC "<<SEP<<POLICE_EFFIC<<ENDL;	//Z jakim prawdopodobieństwem wezwana policja obroni agenta
+		o<<"FLOAT"<<SEP<<"Default USED_SELECTION"<<SEP<<USED_SELECTION<<ENDL; //Jak bardzo przegrani już umierają z braku sił (0 - brak selekcji w ogóle)
 		o<<"FLOAT"<<SEP<<"Default BULLY_POPUL  "<<SEP<<BULLI_POPUL<<ENDL;
 		o<<"FLOAT"<<SEP<<"Default HONOR_POPUL  "<<SEP<<HONOR_POPUL<<ENDL;
 		if(ONLY3STRAT)
@@ -453,13 +458,13 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
 			o<<"FLOAT"<<SEP<<"Default CALLP_POPUL  "<<SEP<<CALLER_POPU<<ENDL;
 			o<<"FLOAT"<<SEP<<"always give up"<<SEP<<(1.0-abs(CALLER_POPU)-abs(BULLI_POPUL)-abs(HONOR_POPUL))<<ENDL;//not realy "loosers"
 		}
-		o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(MAFIAHONOR?"Yes":"No")<<SEP<<MAFIAHONOR<<ENDL;
+		o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(FAMILY_HONOR?"Yes":"No")<<SEP<<FAMILY_HONOR<<ENDL;
 	}
 	else
 	{
-	 o<<"FLOAT"<<SEP<<"POLICE_EFFIC"<<SEP<<POLICE_EFFIC<<ENDL;	//Z jakim prawdopodobie�stwem wezwana policja obroni agenta
-	 o<<"FLOAT"<<SEP<<"USE_SELECTION"<<SEP<<USED_SELECTION<<ENDL; //Jak bardzo przegrani umieraj� (0 - brak selekcji w og�le)
-	 o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(MAFIAHONOR?"Yes":"No")<<SEP<<MAFIAHONOR<<ENDL;
+	 o<<"FLOAT"<<SEP<<"POLICE_EFFIC"<<SEP<<POLICE_EFFIC<<ENDL;	//Z jakim prawdopodobieństwem wezwana policja obroni agenta
+	 o<<"FLOAT"<<SEP<<"USE_SELECTION"<<SEP<<USED_SELECTION<<ENDL; //Jak bardzo przegrani umierają (0 - brak selekcji w ogóle)
+	 o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(FAMILY_HONOR?"Yes":"No")<<SEP<<FAMILY_HONOR<<ENDL;
 
 	 if(BULLI_POPUL>=1) //... CO TO?         TODO?
 	 {                                                                          assert("Dead code called?"==NULL);
@@ -469,19 +474,19 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
 	 }
 	 else
 	 {
-	  o<<"FLOAT"<<SEP<<"BULLY_POPUL"<<SEP<<BULLI_POPUL<<ENDL;//Albo zero-jedynkowo
-	  o<<"FLOAT"<<SEP<<"HONOR_POPUL"<<SEP<<HONOR_POPUL<<ENDL;//Jaka cz�� agent�w populacji jest �ci�le honorowa
+	  o<<"FLOAT"<<SEP<<"BULLY_POPUL"<<SEP<<BULLI_POPUL<<ENDL; //Albo zero-jedynkowo
+	  o<<"FLOAT"<<SEP<<"HONOR_POPUL"<<SEP<<HONOR_POPUL<<ENDL; //Jaka cześć agentów populacji jest �ci�le honorowa
 	  if(ONLY3STRAT)
 	  {
 			o<<"FLOAT"<<SEP<<"CALLP_POPUL"<<SEP<<(1.0-abs(BULLI_POPUL)-abs(HONOR_POPUL))<<ENDL;
 	  }
 	  else
 	  {
-			o<<"FLOAT"<<SEP<<"CALLP_POPUL"<<SEP<<CALLER_POPU<<ENDL;//Jaka cz�� wzywa policje zamiast si� poddawa�
-			o<<"FLOAT"<<SEP<<"RATIONAL"<<SEP<<(1.0-abs(CALLER_POPU)-abs(BULLI_POPUL)-abs(HONOR_POPUL))<<ENDL;//not realy "loosers"
+			o<<"FLOAT"<<SEP<<"CALLP_POPUL"<<SEP<<CALLER_POPU<<ENDL; //Jaka część wzywa policję, zamiast się od razu poddawać
+			o<<"FLOAT"<<SEP<<"RATIONAL"<<SEP<<(1.0-abs(CALLER_POPU)-abs(BULLI_POPUL)-abs(HONOR_POPUL))<<ENDL; //not really "loosers"
 	  }
 	 }
-	 o<<"FLOAT"<<SEP<<"RATIONALITY"<<SEP<<RATIONALITY<<ENDL<<ENDL; //Jak realistycznie ocenia w�asn� si�� (vs. wg. w�asnej reputacji)
+	 o<<"FLOAT"<<SEP<<"RATIONALITY"<<SEP<<RATIONALITY<<ENDL<<ENDL; //Czy realistycznie ocenia własną siłę (vs. wg. własnej reputacji)
 	}
 
 	o<<"REPET"<<SEP<<"STOPAFER"<<SEP<<"VISFREQ";
@@ -538,7 +543,7 @@ void save_stat();
 /// Of course, the main function of the program
 int main(int argc,const char* argv[])
 {
-	cout<<MODELNAME<<" v.:"<<VERSIONNUM<<" PID:"<<(getpid())<<" "<<endl<<
+	cout<<MODEL_NAME<<" v.:"<<VER_NUMBER<<" PID:"<<(getpid())<<" "<<endl<<
 		"======================================================================"<<endl<<
   //		"(programmed by Wojciech Borkowski from University of Warsaw)\n"
 		"        "<<endl
@@ -557,7 +562,7 @@ int main(int argc,const char* argv[])
 		else fix_size(1);
 
 	char bufornazwy[128];
-	sprintf(bufornazwy,"%s %s",MODELNAME,VERSIONNUM);
+	sprintf(bufornazwy,"%s %s",MODEL_NAME,VER_NUMBER);
 	shell_setup(bufornazwy,argc,argv);
 
 	cout<<"\n MODEL CONFIGURATION: "<<endl;
@@ -573,12 +578,12 @@ int main(int argc,const char* argv[])
     line_width(1);
 
 	char* SPom;
-	if((SPom=strstr(LogName.get_ptr_val(),"XXX"))!=0) //Nie było zmiany nazwy z linii komend
+	if((SPom=strstr(LogName.get_ptr_val(),"XXX"))!=nullptr) //Nie było zmiany nazwy z linii komend
 	{
-		*SPom='\0'; //Obci�cie
+		*SPom='\0'; //Obcięcie
 		LogName=MakeFileName(LogName.get());//?
 	}
-	if((SPom=strstr(DumpNam.get_ptr_val(),"XXX"))!=0) //Nie było zmiany nazwy z linii komend
+	if((SPom=strstr(DumpNam.get_ptr_val(),"XXX"))!=nullptr) //Nie było zmiany nazwy z linii komend
 	{
 		*SPom='\0'; //Obcięcie
 		DumpNam=MakeFileName(DumpNam.get()); //?

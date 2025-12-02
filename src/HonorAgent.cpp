@@ -182,7 +182,7 @@ HonorAgent::Decision  HonorAgent::check_partner(unsigned& x,unsigned& y)
 		(this->Agres>0.0 && DRAND()<this->Agres))  //NOT USED REALLY in PAPER 2015! Jak nie w pełni agresywny to losujemy chęć!
 		&&                                          
 		( Ag.HonorFeiRep<=(RATIONALITY*this->Power+(1-RATIONALITY)*HonorFeiRep) //Agresywność, gdy przeciwnik SŁABSZY! Więc agresywni by nigdy by tak ze sobą nie walczyli!     RULE 2 !
-		||( DRAND()< AGRES_AGRESSION   )  )                                     //Agresywność spontaniczna (bez kalkulacji)
+		||( DRAND()< AGRES_AGGRESSION   )  )                                     //Agresywność spontaniczna (bez kalkulacji)
 		)
 		{                                                                                       assert(this->Agres>0.0);
 			if(  Ag.HonorFeiRep>this->HonorFeiRep )
@@ -192,7 +192,7 @@ HonorAgent::Decision  HonorAgent::check_partner(unsigned& x,unsigned& y)
 		}
 		else if(
 //TODO??? Czy coś tu było wcześniej?
-		(Honor>0 && DRAND()<Honor*HONOR_AGRESSION) //Więc poza agresywnymi może tylko honorowi mają niezerową agresję z powodu nieporozumień?
+		(Honor>0 && DRAND()<Honor*HONOR_AGGRESSION) //Więc poza agresywnymi może tylko honorowi mają niezerową agresję z powodu nieporozumień?
 		)
 		{
 			this->MemOfLastDecision=HOOK; //Ewentualna zaczepka losowa lub honorowa
@@ -417,7 +417,7 @@ void power_recovery_step()
         && Ag.Power<USED_SELECTION)  //Siła spadła poniżej progu przeżycia.
 		{
 		   if(population_growth==0) //Tryb z prawdopodobieństwami inicjalnymi
-		   {       																              assert(MAFIAHONOR==false);
+		   {       																              assert(FAMILY_HONOR==false);
 			Ag.RandomReset(); //Po prostu w jego miejsce losowy agent
 			NumberOfKilled++;
 			NumberOfKilledToday++;
@@ -431,12 +431,12 @@ void power_recovery_step()
 
 			if(Rodzic.Power>0) //Tylko wtedy może się rodzić! NEW TODO Check  - JAK NIE TO ROZLICZENIE NA PÓŹNIEJ?
 			{
-			 if(MAFIAHONOR) //Jeżeli są stosunki rodzinne to śmierć ma różne konsekwencje społeczne
+			 if(FAMILY_HONOR) //Jeżeli są stosunki rodzinne to śmierć ma różne konsekwencje społeczne
 				Ag.SmiercDona();
 
-			 if(InheritMAXPOWER)
+			 if(Inherit_MAX_POWER)
 			 {
-				float NewLimit=Rodzic.PowLimit + LIMITNOISE
+				float NewLimit=Rodzic.PowLimit + NOISE_LIMIT
                               *Rodzic.PowLimit*(( (DRAND()+DRAND()+DRAND()+DRAND()+DRAND()+DRAND())/6 ) - 0.5);
                 																                     assert(NewLimit>0);
 				if(NewLimit>1) NewLimit=1; //Zerowy nie będzie, ale może przekraczać 1
@@ -449,7 +449,7 @@ void power_recovery_step()
 			 Ag.Honor=Rodzic.Honor;
 			 Ag.CallPolice=Rodzic.CallPolice;
 
-			 if(MAFIAHONOR) //I urodziny także mają konsekwencje rodzinne
+			 if(FAMILY_HONOR) //I urodziny także mają konsekwencje rodzinne
 			 {
 				Ag.HonorFeiRep=Rodzic.HonorFeiRep; //Ma reputacje rodzica, bo on go chroni
 				PowiazRodzicielsko(Rodzic,Ag);  //anty SmiercDona();
@@ -462,7 +462,7 @@ void power_recovery_step()
 		   }
 		   else
 		   if(population_growth==3) //Tryb GLOBALNY z losowym członkiem populacji jako rodzicem
-		   {                                                                                  assert(MAFIAHONOR==false);
+		   {                                                                                  assert(FAMILY_HONOR==false);
 			unsigned xx=RANDOM(SIDE),yy=RANDOM(SIDE);
 			HonorAgent& Drugi=HonorAgent::World[yy][xx]; //Uchwyt do agenta
 			if(Drugi.Power>0)  //Może postać do rozliczenia na później.
@@ -635,7 +635,7 @@ void    HonorAgent::change_reputation(double Delta,HonorAgent& Powod,int level)/
 	 }
 #endif
     HonorAgent* Cappo=NULL; //Przy okazji sprawdzenia, czy ktoś jest w tej rodzinie, ustalamy "Ojca chrzestnego".
-    if(&Powod!=NULL && MAFIAHONOR && !IsMyFamilyMember(Powod,Cappo) )//Jeżeli działa honor rodzinny to ...
+    if(&Powod!=NULL && FAMILY_HONOR && !IsMyFamilyMember(Powod,Cappo) )//Jeżeli działa honor rodzinny to ...
     {
         if(Cappo==NULL) //Nie ma żyjącego ojca. Tu ślad się urywa.
             Cappo=this;

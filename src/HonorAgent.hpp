@@ -38,8 +38,8 @@ extern bool		ONLY3STRAT;  ///< Default:=false; Without rational strategy (Czy ty
 
 extern FLOAT    POLICE_EFFIC; ///< Default:=0.050; Probability of efficient interventions of authority (Z jakim prawdopodobieństwem wezwana policja obroni agenta)
 
-extern bool     InheritMAXPOWER;  ///< NOT USED? Default=false;//Czy nowi agenci dziedziczą (z szumem) max power po rodzicu?
-extern FLOAT    LIMITNOISE;		  ///< NOT USED? Default=0.3; //Mnożnik szumu
+extern bool     Inherit_MAX_POWER;  ///< NOT USED? Default=false;//Czy nowi agenci dziedziczą (z szumem) max power po rodzicu?
+extern FLOAT    NOISE_LIMIT;		  ///< NOT USED? Default=0.3; //Mnożnik szumu
 
 //const FLOAT     BULLISM_LIMIT=-1; ///< NOT USED? (Nie używany. Jak ujemne to rozkład Pareto lub brak rozkładu, jak dodatnie to dzwonowy. Jak BULLI_POPUL 1 to decyduje rozkład sterowany BULLISM_LIMIT)
 const FLOAT    	RATIONALITY=0.0;  ///< NOT USED? How realistically the agent evaluate their own strength (Jak realistycznie ocenia własną siłę vs. według własnej reputacji)
@@ -50,11 +50,11 @@ extern FLOAT    USED_SELECTION; ///< Default=0.05; How easily losers die. (Jak �
 extern FLOAT    MORTALITY;        ///< Default=0.01; How easy it is to die for reasons of chance or nonsocial - illness, accident, etc. WHEN ARE 0 = "ELVES" (Jak łatwo można zginąć z przyczyn losowych czyli niespołecznych - choroba, wypadek itp. JAK 0 TO SĄ "ELFY")
 extern FLOAT    EXTERNAL_REPLACE; ///< Default=0.001; What is the probability of random exchange for a new agent with the initial distribution (Jakie jest prawdopodobieństwo wymiany na losowego agenta)
 
-extern FLOAT    AGRES_AGRESSION; ///< Default=0.0250; Random aggression of AGGRESSIVE (POZIOM PRZYPADKOWEJ AGRESJI AGRESYWNYCH - bez kalkulacji kto silniejszy!)
-extern FLOAT    HONOR_AGRESSION; ///< Default=0.0250; Random aggression of HONOR (Bazowy poziom agresji tylko dla HONOROWYCH)
+extern FLOAT    AGRES_AGGRESSION; ///< Default=0.0250; Random aggression of AGGRESSIVE (POZIOM PRZYPADKOWEJ AGRESJI AGRESYWNYCH - bez kalkulacji kto silniejszy!)
+extern FLOAT    HONOR_AGGRESSION; ///< Default=0.0250; Random aggression of HONOR (Bazowy poziom agresji tylko dla HONOROWYCH)
 
 
-extern bool     MAFIAHONOR; ///< Default NOT USED IN PAPER =false; Czy reputacja przenosi się na członków rodziny?
+extern bool     FAMILY_HONOR; ///< Default NOT USED IN PAPER =false; Czy reputacja przenosi się na członków rodziny?
 
 #ifdef TESTING_RULE_LITERALS
 extern FLOAT	TEST_DIVIDER;//=1.0; ONLY FOR ADVANCED ROBUSTNESS STUDIES (Służy do modyfikacji stałych liczbowych używanych w regułach reakcji agenta)
