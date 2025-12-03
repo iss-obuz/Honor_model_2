@@ -104,23 +104,23 @@ int   WB_error_enter_before_clean=1; ///< Whether to give the operator a chance 
 /// * 0.35b - i stworzenie automatycznego generatora nazw plików log i bitmap.
 /// * 0.35  - ostateczna implementacja "MAFII" dwupoziomowej (pokrewieństwo do dwu poziomów przodków liczy się jako rodzina)
 ///           Wyprowadzenie tego jako parametru. Zmiana parametrów nazw logów z char* na wb_pchar
-///          (trzeba było rozbudować klasę OptParam.
+///          (trzeba było rozbudować klasę OptParam).
 /// * 0.31  - podział na osobne źródła w celu implementacji rodzinnego honoru. "b" - implementacja "mafii"
 /// * 0.30a - różne zmiany w sposobie wyprowadzania danych tekstowych i trzeci rodzaj eksploracji przestrzeni
 /// * 0.28aa- początek tworzenia trzeciego rodzaju przekroju przestrzeni parametrów, oraz poprawki
-/// * 0.27  - wykres przestrzeni selekcja x polic.effic.
+/// * 0.27  - wykres przestrzeni selekcja x police efficiency.
 /// * 0.2631 - Drobne poprawki???
 /// * 0.263 - Większość parametrów obsługiwana przez szablon klasy z "OptParam"
-/// * 0.262 - WAŻNE – również WIMPowie patrzą teraz nie na swoje realne siły, ale na własną reputacje,
-///           więc de facto poza dzieciństwem prawdopodobnie nigdy się nie bronią
-///           Techniczne - wprowadzenie użycia klasy parametrów do obsługi parametrów modelu
+/// * 0.262 - WAŻNE – również WIMPowie patrzą teraz nie na swoje realne siły, ale na własną reputację, więc de facto
+///           poza dzieciństwem prawdopodobnie nigdy się nie bronią
+///           Techniczne — wprowadzenie użycia klasy parametrów do obsługi parametrów modelu
 ///
 /// DO RAPORTU 2012:
 ///
-/// * 0.26 -  Wykres przestrzeni - w proporcji honorowych i policyjnych do siebie dzielących 1/2 lub 2/3 całości.
+/// * 0.26 -  Wykres przestrzeni — w proporcji honorowych i policyjnych do siebie dzielących 1/2 lub 2/3 całości.
 ///           Inny sposób kolorowania "kultur" na obrazie świata symulacji (czerwony-agresja, zielony-honor, niebieski-callPolice)
-///               Próba zmiany rozkładu "łomotu" dla GIVEUP - żeby mogli zginąć, ale bardziej niszczy bullys!?!?
-///               Do ewolucji potrzebny szumowe śmierci - parametr NOISE_KILL
+///               Próba zmiany rozkładu "łomotu" dla GIVE_UP - żeby mogli zginąć, ale bardziej niszczy bullies!?!?
+///               Do ewolucji potrzebny szumowe śmierci — parametr NOISE_KILL
 ///              ewolucja:
 ///          - lokalne rozmazanie losowe sąsiad
 ///          TODO  - losowy Agent z całości - ZROBIONE POTEM
@@ -128,10 +128,10 @@ int   WB_error_enter_before_clean=1; ///< Whether to give the operator a chance 
 ///
 ///          Statystyki: ile razy agent jest atakowany i ile razy wygrał ,
 ///                      indeks klasteringu dla kultur.
-///       Częstości ataków na poszczególne grupy w czasie - bez selekcji, zysk indywidualny
+///       Częstości ataków na poszczególne grupy w czasie — bez selekcji, zysk indywidualny
 ///       Duża mapa z gradientem policji.
 ///
-///          ewentualnie różna aktywność honorowych. Nie zawsze muszą stawać, ale z prawdopodobieństwem
+///          Ewentualnie różna aktywność agentów honorowych. Nie zawsze muszą stawać, ale z prawdopodobieństwem
 ///          NA PÓŹNIEJ: ilość policji zależy od ilości ataków? Inny model – podatkowy – NIE TYM RAZEM.
 ///
 /// * 0.251 - poprawienie błędu w liczeniu "always give up" na metryczce pliku log
@@ -143,7 +143,7 @@ int   WB_error_enter_before_clean=1; ///< Whether to give the operator a chance 
 ///          W tym ZAPISU BITMAP Z WYNIKAMI
 /// * 0.24 - wprowadzenie parametru RATIONALITY, bo użycie w pełni realistycznej oceny siły psuje selekcje
 ///          Zmiany kosmetyczne w nagłówku pliku wyjściowego
-/// * 0.23 - znają swoją realną siłę i ją porównują z reputacją drugiego gdy mają atakować lub się bronić. Ale to nie działało dobrze...
+/// * 0.23 - znają swoją realną siłę i ją porównują z reputacją drugiego, gdy mają atakować lub się bronić (Ale to nie działało dobrze).
 /// * 0.20 - pierwsza wersja w pełni działająca
 ///
 /// (for english version see changelog.md)
@@ -169,7 +169,7 @@ FLOAT    HONOR_AGGRESSION=0.01250; ///< Default: 0.015;
 
 /// PROBABILITY LEVEL OF ACCIDENTAL AGGRESSIVE AGENTS AGGRESSION. Basic, that is beyond the calculation who is stronger!
 /// (POZIOM PRAWD. PRZYPADKOWEJ AGRESJI AGRESYWNYCH AGENTÓW. Bazowy, czyli poza kalkulacją kto silniejszy!)
-FLOAT    AGRES_AGGRESSION=0.01250;
+FLOAT    BULLI_AGGRESSION=0.01250;
 
 /// What is the probability of accidentally changing to a completely different one
 /// (Jakie jest prawdopodobieństwo przypadkowej zamiany na zupełnie innego)
@@ -204,11 +204,11 @@ FLOAT    NOISE_LIMIT=0.3;         ///< Noise multiplier when inheriting the maxi
 /// \note
 /// "-" is the value fix marker in batch mode
 /// ("-" jest markerem zafiksowania wartości w trybie batch)
-FLOAT    BULLI_POPUL=-0.25; ///< Epl.: 0.2;//0.100; //Or zero-one. As in the 2015 article.
+FLOAT    BULLI_RATIO=-0.25; ///< Epl.: 0.2;//0.100; //Or zero-one. As in the 2015 article.
 
 /// What proportion of the agents of the population is honorable.
 /// (Jaka część agentów populacji jest honorowa)
-FLOAT     HONOR_POPUL=0.25;  ///< Epl.: 0.10;//.17;0.33;
+FLOAT     HONOR_RATIO=0.25;  ///< Epl.: 0.10;//.17;0.33;
 
 /// How many agents call the police instead of giving up.
 /// (Jaka część agentów wzywa policje, zamiast się poddawać)
@@ -316,10 +316,10 @@ new OptionalParameter<FLOAT>(MORTALITY,0,0.05,"MORTALITY","Ratio of agents rando
 new OptionalParameter<FLOAT>(EXTERNAL_REPLACE,0,0.05,"EXTREPLACE","Ratio of agents randomly replaced by random newcomers every step"), //Wymiana imigracyjno/emigracyjna MA�A MA BY�!
 new OptionalParameter<FLOAT>(USED_SELECTION,0,0.75,"SELECTION","Minimal level of strength required to survive"),//0.10; //Jak bardzo przegrani umieraj� (0 - brak selekcji w og�le)
 new OptionalParameter<FLOAT>(HONOR_AGGRESSION,0,0.15,"HONAGRES","Probability of random aggression of HONOR agents"),//0.015;//Bazowy poziom agresji zale�ny od honoru
-new OptionalParameter<FLOAT>(AGRES_AGGRESSION,0,0.15,"AGRAGRES","Probability of random aggression of AGGRESSIVE agents"),//0.015;//Bazowy poziom agresji zale�ny od honoru
+new OptionalParameter<FLOAT>(BULLI_AGGRESSION, 0, 0.15, "AGRAGRES", "Probability of random aggression of AGGRESSIVE agents"),//0.015;//Bazowy poziom agresji zale�ny od honoru
 #ifndef PUBLIC_2015
 new OptionalParameter<unsigned>(population_growth,0,3,"GROWMODE","How population growth?\n\t  0-as initial distribution, 1-local distribution, 3-global distribution\n\t "),
-new OptionalParameter<bool>(HonorAgent::CzyTorus,false,true,"TORUS","Is the world topology toroidal or not"), //Czy geometria torusa czy wyspy z brzegami
+new OptionalParameter<bool>(HonorAgent::use_torus, false, true, "TORUS", "Is the world topology toroidal or not"), //Czy geometria torusa czy wyspy z brzegami
 new OptionalParameter<bool>(Inherit_MAX_POWER,false,true,"INHERITPOWER","Do new agents inherit (with noise) max power from its parent?"),
 new OptionalParameter<bool>(FAMILY_HONOR,false,true,"FAMILIES", "Is a family relationship taken into account in reputation changes?"),//Czy u�ywamy mechanizmu rodzinnego zmian reputacji
 #ifdef TESTING_RULE_LITERALS
@@ -329,8 +329,8 @@ new OptionalParameter<FLOAT>(TEST_DIVIDER,1.0/3.0,1.0,"TEST_DIVIDER","For testin
 //FLOAT    RECOVERY_POWER=0.005; //Jaką część siły odzyskuje w kroku czasu.
 new OptionalParameter<FLOAT>(RECOVERY_POWER,0.00001,0.5,"RECPOWER","How fast agent recovery for fight damage"),
 new OptionalParameter<FLOAT>(POLICE_EFFIC,0,1,"POLICEEF","Probability of efficient police intervention"),//=0.50;//0.650;//0.950; //Z jakim prawdopodobie�stwem wezwana policja obroni agenta
-new OptionalParameter<FLOAT>(BULLI_POPUL,0,1,"BULLYPR","Initial probability to born as bully agent"),//=-0.25;//0.2;//0.100;//Albo zero-jedynkowo. Jak 1 to decyduje rozk�ad sterowany BULLISM_LIMIT ("-" jest sygna�em zafiksowania w trybie batch
-new OptionalParameter<FLOAT>(HONOR_POPUL,0,1,"HONORPR","Initial probability to born as honor agent"),//=0.18;//0.3333;//Jaka cz�� agent�w populacji jest �ci�le honorowa
+new OptionalParameter<FLOAT>(BULLI_RATIO, 0, 1, "BULLYPR", "Initial probability to born as bully agent"),//=-0.25;//0.2;//0.100;//Albo zero-jedynkowo. Jak 1 to decyduje rozk�ad sterowany BULLISM_LIMIT ("-" jest sygna�em zafiksowania w trybie batch
+new OptionalParameter<FLOAT>(HONOR_RATIO, 0, 1, "HONORPR", "Initial probability to born as honor agent"),//=0.18;//0.3333;//Jaka cz�� agent�w populacji jest �ci�le honorowa
 //BULLYPR=0.333   HONORPR=0.333 CALLPRP=0.333
 new OptionalParameter<FLOAT>(CALLER_POPU,0,1,"CALLPRP","Initial probability to born as police caller"),//=0.25;//Jaka cz�� wzywa policje zamiast si� poddawa�
 new OptionalParameter<bool>(ONLY3STRAT,false,true,"CALLPOLISREST","Is police callers the last strategies?"
@@ -358,7 +358,7 @@ new ParameterLabel("STATISTIC & SO... HOW MANY, HOW OFTEN, WHERE"),
 new OptionalParameter<unsigned>(REPETITION_LIMIT,1,1000,"REPETITIONS","How many repetitions for each settings we expect?"),
 new OptionalParameter<unsigned>(STAT_AFTER,1,1000000,"STATSTART","When start to calculate statistics in batch mode?"),
 new OptionalParameter<unsigned>(STOP_AFTER,1,1000000,"MAXSTEP","To stop each simulation after this number of steps"),
-new OptionalParameter<unsigned>(EveryStep,1,10000,   "VISSTEP","For set how often visualisation and statistics occur?"),
+new OptionalParameter<unsigned>(EveryStep,1,10000,   "VISSTEP","For set how often visualization and statistics occur?"),
 new OptionalParameter<unsigned>(DumpStep,1,1000000,  "DMPSTEP","For set how often agents attributes and graphix view is dumped?"),
 new OptionalParameter<unsigned>(PREVSTEP,1,100,         "PREVSTEP","When previous state for calculating of variation is calculated?"),
 //new OptionalParameter<const char*>(LogName,"honor","HONOR","LOGNAME","Name for main log file"),
@@ -376,8 +376,8 @@ new OptionalParameter<bool>(BatchPlotPower,false,true,"BATPOWER","To plot mean p
 #ifndef PUBLIC_2015
 new OptionalParameter<bool>(Batch_true_color,false,true,"BATTRCOL","To plot in true colors during batch sim."),
 #endif
-new OptionalParameter<unsigned>(VSIZ,3,20,"AGENTSIZ1","Side of an agent on the composed visualisation"), //Maksymalny rozmiar boku agenta w wizualizacji kompozytowej
-new OptionalParameter<unsigned>(SSIZ,1,5,"AGENTSIZ2","Side of an agent on the small visualisations"), //Bok agenta w wizualizacji uzupełniającej (małej)
+new OptionalParameter<unsigned>(VSIZ,3,20,"AGENTSIZ1","Side of an agent on the composed visualization"), //Maksymalny rozmiar boku agenta w wizualizacji kompozytowej
+new OptionalParameter<unsigned>(SSIZ,1,5,"AGENTSIZ2","Side of an agent on the small visualizations"), //Bok agenta w wizualizacji uzupełniającej (małej)
 new ParameterLabel("END OF LIST")
 };                                              // Comment PREVSTEP ONLY3STRAT
 
@@ -391,7 +391,7 @@ wb_pchar MakeFileName(const char* Core)
     SPom.prn("%s%sS%gF%cRA%gNK%gG%uT%u___MC%uST%uev%uRx%u_%u",
         Core,(!batch_mode?"Mod":batch_names[batch_sele]),USED_SELECTION,(FAMILY_HONOR?'y':'n'),HONOR_AGGRESSION
         ,
-        EXTERNAL_REPLACE,population_growth,HonorAgent::CzyTorus,
+        EXTERNAL_REPLACE,population_growth,HonorAgent::use_torus,
         //...tu proporcje? na razie nie...
         STOP_AFTER,STAT_AFTER,EveryStep,REPETITION_LIMIT,(getpid()));
     return SPom;
@@ -417,14 +417,14 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
 #endif
 
     o<<"uint"<<SEP<<"SIDE"<<SEP<<SIDE<<ENDL;//SIDE*SIDE to rozmiar �wiata symulacji
-    o<<"bool"<<SEP<<"TORUS"<<SEP<<(HonorAgent::CzyTorus?"true":"false")<<ENDL;
+    o << "bool" << SEP << "TORUS" << SEP << (HonorAgent::use_torus ? "true" : "false") << ENDL;
 
     o<<"uint "<<SEP<<"MOORE_RAD"<<SEP<<MOORE_RAD<<ENDL;
-    o<<"FLOAT"<<SEP<<"OUT_FAR_LINKS_PER_AGENT"<<SEP<<OUTFAR_LINKS_PER_AGENT<<ENDL;//Ile jest dodatkowych link�w jako u�amek liczby agent�w
+    o << "FLOAT" << SEP << "OUT_FAR_LINKS_PER_AGENT" << SEP << FAR_LINKS_PER_AGENT << ENDL;//Ile jest dodatkowych link�w jako u�amek liczby agent�w
     o<<"FLOAT"<<SEP<<"RECOVERY_POWER"<<SEP<<RECOVERY_POWER<<ENDL;//Jak� cz�� si�y odzyskuje w kroku
     o<<"uint "<<SEP<<"POP_GROWTH_MODE"<<SEP<<population_growth<<ENDL;//Rodzaj wzrostu populacji (z prop. bazowych,globalnych lub lokalnych)
     o<<"FLOAT"<<SEP<<"HONOR_AGGRESSION"<<SEP<<HONOR_AGGRESSION<<ENDL;//0.950;
-    o<<"FLOAT"<<SEP<<"AGRES_AGGRESSION"<<SEP<<AGRES_AGGRESSION<<ENDL;//0.950;
+    o << "FLOAT" << SEP << "BULLI_AGGRESSION" << SEP << BULLI_AGGRESSION << ENDL;//0.950;
     o<<"FLOAT"<<SEP<<"EXTERNAL_REPLACE"<<SEP<<EXTERNAL_REPLACE<<ENDL;
     o<<"FLOAT"<<SEP<<"MORTALITY"<<SEP<<MORTALITY<<ENDL;
 #ifndef PUBLIC_2015
@@ -446,16 +446,16 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
         o<<"uint "<<SEP<<"TYPE OF BATCH JOB:"<<SEP<<batch_sele<<SEP<<batch_names[batch_sele]<<ENDL;
         o<<"FLOAT"<<SEP<<"Default POLICE_EFFIC "<<SEP<<POLICE_EFFIC<<ENDL;    //Z jakim prawdopodobieństwem wezwana policja obroni agenta
         o<<"FLOAT"<<SEP<<"Default USED_SELECTION"<<SEP<<USED_SELECTION<<ENDL; //Jak bardzo przegrani już umierają z braku sił (0 - brak selekcji w ogóle)
-        o<<"FLOAT"<<SEP<<"Default BULLY_POPUL  "<<SEP<<BULLI_POPUL<<ENDL;
-        o<<"FLOAT"<<SEP<<"Default HONOR_POPUL  "<<SEP<<HONOR_POPUL<<ENDL;
+        o << "FLOAT" << SEP << "Default BULLY_POPUL  " << SEP << BULLI_RATIO << ENDL;
+        o << "FLOAT" << SEP << "Default HONOR_RATIO  " << SEP << HONOR_RATIO << ENDL;
         if(ONLY3STRAT)
         {
-            o<<"FLOAT"<<SEP<<"Default CALLP_POPUL"<<SEP<<(1.0-abs(BULLI_POPUL)-abs(HONOR_POPUL))<<ENDL;
+            o << "FLOAT" << SEP << "Default CALLP_POPUL" << SEP << (1.0 - abs(BULLI_RATIO) - abs(HONOR_RATIO)) << ENDL;
         }
         else
         {
             o<<"FLOAT"<<SEP<<"Default CALLP_POPUL  "<<SEP<<CALLER_POPU<<ENDL;
-            o<<"FLOAT"<<SEP<<"always give up"<<SEP<<(1.0-abs(CALLER_POPU)-abs(BULLI_POPUL)-abs(HONOR_POPUL))<<ENDL;//not realy "loosers"
+            o << "FLOAT" << SEP << "always give up" << SEP << (1.0 - abs(CALLER_POPU) - abs(BULLI_RATIO) - abs(HONOR_RATIO)) << ENDL;//not realy "loosers"
         }
         o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(FAMILY_HONOR?"Yes":"No")<<SEP<<FAMILY_HONOR<<ENDL;
     }
@@ -465,7 +465,7 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
      o<<"FLOAT"<<SEP<<"USE_SELECTION"<<SEP<<USED_SELECTION<<ENDL; //Jak bardzo przegrani umierają (0 - brak selekcji w ogóle)
      o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(FAMILY_HONOR?"Yes":"No")<<SEP<<FAMILY_HONOR<<ENDL;
 
-     if(BULLI_POPUL>=1) //... CO TO?         TODO?
+     if(BULLI_RATIO >= 1) //... CO TO?         TODO?
      {                                                                          assert("Dead code called?"==NULL);
       o<<"FLOAT"<<SEP<<"BULLISM_LIMIT"
        //<<SEP<<BULLISM_LIMIT
@@ -473,16 +473,16 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
      }
      else
      {
-      o<<"FLOAT"<<SEP<<"BULLY_POPUL"<<SEP<<BULLI_POPUL<<ENDL; //Albo zero-jedynkowo
-      o<<"FLOAT"<<SEP<<"HONOR_POPUL"<<SEP<<HONOR_POPUL<<ENDL; //Jaka cześć agentów populacji jest �ci�le honorowa
+      o << "FLOAT" << SEP << "BULLY_POPUL" << SEP << BULLI_RATIO << ENDL; //Albo zero-jedynkowo
+      o << "FLOAT" << SEP << "HONOR_RATIO" << SEP << HONOR_RATIO << ENDL; //Jaka cześć agentów populacji jest �ci�le honorowa
       if(ONLY3STRAT)
       {
-            o<<"FLOAT"<<SEP<<"CALLP_POPUL"<<SEP<<(1.0-abs(BULLI_POPUL)-abs(HONOR_POPUL))<<ENDL;
+            o << "FLOAT" << SEP << "CALLP_POPUL" << SEP << (1.0 - abs(BULLI_RATIO) - abs(HONOR_RATIO)) << ENDL;
       }
       else
       {
             o<<"FLOAT"<<SEP<<"CALLP_POPUL"<<SEP<<CALLER_POPU<<ENDL; //Jaka część wzywa policję, zamiast się od razu poddawać
-            o<<"FLOAT"<<SEP<<"RATIONAL"<<SEP<<(1.0-abs(CALLER_POPU)-abs(BULLI_POPUL)-abs(HONOR_POPUL))<<ENDL; //not really "loosers"
+            o << "FLOAT" << SEP << "RATIONAL" << SEP << (1.0 - abs(CALLER_POPU) - abs(BULLI_RATIO) - abs(HONOR_RATIO)) << ENDL; //not really "loosers"
       }
      }
      o<<"FLOAT"<<SEP<<"RATIONALITY"<<SEP<<RATIONALITY<<ENDL<<ENDL; //Czy realistycznie ocenia własną siłę (vs. wg. własnej reputacji)
@@ -728,13 +728,13 @@ void replot(wb_dynmatrix<HonorAgent>& World)
             switch(Ag.LastDecision(false)){
                 case HonorAgent::WITHDRAW:
                     ColorDyn=180;  break;
-                case HonorAgent::GIVEUP:
+                case HonorAgent::GIVE_UP:
                     ColorDyn=255;  break;
                 case HonorAgent::HOOK:
                     ColorDyn=254;  break;
                 case HonorAgent::FIGHT:
                     ColorDyn=70;  break;
-                case HonorAgent::CALLAUTH:
+                case HonorAgent::CALL_AUTH:
                     ColorDyn=128;  break;
                 default:
                     ColorDyn=0;     break;
@@ -830,36 +830,36 @@ void PlotTables(const char* Name1,wb_dynmatrix<FLOAT>& Tab1,
 
      print_transparently(0);
      switch(batch_sele){ //Czy tryb przeszukiwania szuka po proporcjach, czy po sile selekcji?
-        case BAT_SELECTION:printc(0,screen_height()-char_height('X'),55,255,
-            "POL.EFF:%g-%g:%g SEL.:%g-%g:%g (last: B=%g H=%g C=%g) STEPS:%u NREP:%u STATSTART:%u  ",
-                        POLICE_EFFIC_MIN,POLICE_EFFIC_MAX,POLICE_EFFIC_STEP,
-                        SELECTION_MIN,SELECTION_MAX,SELECTION_STEP,
-                        BULLI_POPUL,HONOR_POPUL,CALLER_POPU,
-                        STOP_AFTER,
-                        REPETITION_LIMIT,
-                        STAT_AFTER
+        case BAT_SELECTION:printc(0,screen_height()-char_height('X'), 55, 255,
+                                  "POL.EFF:%g-%g:%g SEL.:%g-%g:%g (last: B=%g H=%g C=%g) STEPS:%u NREP:%u STATSTART:%u  ",
+                                  POLICE_EFFIC_MIN, POLICE_EFFIC_MAX, POLICE_EFFIC_STEP,
+                                  SELECTION_MIN, SELECTION_MAX, SELECTION_STEP,
+                                  BULLI_RATIO, HONOR_RATIO, CALLER_POPU,
+                                  STOP_AFTER,
+                                  REPETITION_LIMIT,
+                                  STAT_AFTER
                         );
                 break;//=1,        walk_params_sele();
-        case BAT_HONORvsCPOLL:printc(0,screen_height()-char_height('X'),55,255,
-            "POL.EFF:%g-%g:%g PROP:%g-%g:%g (last: B=%g H=%g C=%g Sel=%g) STEPS:%u NREP:%u STATSTART:%u  ",
-                        POLICE_EFFIC_MIN,POLICE_EFFIC_MAX,POLICE_EFFIC_STEP,
-                        PROPORTION_MIN,PROPORTION_MAX,PROPORTION_STEP,
-                        BULLI_POPUL,HONOR_POPUL,CALLER_POPU,
-                        USED_SELECTION,
-                        STOP_AFTER,
-                        REPETITION_LIMIT,
-                        STAT_AFTER
+        case BAT_HONORvsCPOLL:printc(0,screen_height()-char_height('X'), 55, 255,
+                                     "POL.EFF:%g-%g:%g PROP:%g-%g:%g (last: B=%g H=%g C=%g Sel=%g) STEPS:%u NREP:%u STATSTART:%u  ",
+                                     POLICE_EFFIC_MIN, POLICE_EFFIC_MAX, POLICE_EFFIC_STEP,
+                                     PROPORTION_MIN, PROPORTION_MAX, PROPORTION_STEP,
+                                     BULLI_RATIO, HONOR_RATIO, CALLER_POPU,
+                                     USED_SELECTION,
+                                     STOP_AFTER,
+                                     REPETITION_LIMIT,
+                                     STAT_AFTER
                         );
                 break;//=2,    walk_params_prop();
-        case BAT_HONORvsAGRR:printc(0,screen_height()-char_height('X'),55,255,
-            "PROP:%g-%g:%g SEL.:%g-%g:%g (last: B=%g H=%g C=%g Sel=%g) STEPS:%u NREP:%u STATSTART:%u  ",
-                        PROPORTION_MIN,PROPORTION_MAX,PROPORTION_STEP,
-                        SELECTION_MIN,SELECTION_MAX,SELECTION_STEP,
-                        BULLI_POPUL,HONOR_POPUL,CALLER_POPU,
-                        USED_SELECTION,
-                        STOP_AFTER,
-                        REPETITION_LIMIT,
-                        STAT_AFTER
+        case BAT_HONORvsAGRR:printc(0,screen_height()-char_height('X'), 55, 255,
+                                    "PROP:%g-%g:%g SEL.:%g-%g:%g (last: B=%g H=%g C=%g Sel=%g) STEPS:%u NREP:%u STATSTART:%u  ",
+                                    PROPORTION_MIN, PROPORTION_MAX, PROPORTION_STEP,
+                                    SELECTION_MIN, SELECTION_MAX, SELECTION_STEP,
+                                    BULLI_RATIO, HONOR_RATIO, CALLER_POPU,
+                                    USED_SELECTION,
+                                    STOP_AFTER,
+                                    REPETITION_LIMIT,
+                                    STAT_AFTER
                         );
                 break;//=3    walk_honor_vs_agrr();
         case NO_BAT://=0
@@ -1013,25 +1013,25 @@ void walk_params_prop()
 
    for(FLOAT prop=PROPORTION_MIN,Y=0;prop<=PROPORTION_MAX;prop+=PROPORTION_STEP,Y++)
    {
-       //if(BULLI_POPUL>=0)  //????
-       //            BULLI_POPUL=prop;
+       //if(BULLI_RATIO>=0)  //????
+       //            BULLI_RATIO=prop;
 
        if(Compensation_mode)
-       {                                                                                assert(fabs(BULLI_POPUL)>=0);
-          HONOR_POPUL=PROPORTION_MAX-prop;
+       {                                                                                assert(fabs(BULLI_RATIO) >= 0);
+           HONOR_RATIO= PROPORTION_MAX - prop;
           CALLER_POPU=prop;
        }
        else
        {
-        if(HONOR_POPUL>=0)
-                HONOR_POPUL=prop;
+        if(HONOR_RATIO >= 0)
+            HONOR_RATIO=prop;
         if(CALLER_POPU>=0 )
                 CALLER_POPU=prop;
        }
 
        for(FLOAT efficiency=POLICE_EFFIC_MIN,X=0; efficiency <= POLICE_EFFIC_MAX; efficiency+=POLICE_EFFIC_STEP,X++)
        {
-           cout << endl << "SYM: " << Y << ' ' << X << " Prop(H:C): " << HONOR_POPUL << ":" << CALLER_POPU << "\tPEff.: " << efficiency << "\tB:" << BULLI_POPUL << endl;
+           cout << endl << "SYM: " << Y << ' ' << X << " Prop(H:C): " << HONOR_RATIO << ":" << CALLER_POPU << "\tPEff.: " << efficiency << "\tB:" << BULLI_RATIO << endl;
            POLICE_EFFIC=efficiency;
 
            //PĘTLA POWTÓRZEŃ SYMULACJI
@@ -1043,10 +1043,10 @@ void walk_params_prop()
            FLOAT MnPropOfHonor=0;
            FLOAT MnPropOfPCall=0;
            FLOAT MnPropOfOther=0;
-           FLOAT PrevPropOfAgres=abs(BULLI_POPUL);
-           FLOAT PrevPropOfHonor=abs(HONOR_POPUL);
+           FLOAT PrevPropOfAgres=abs(BULLI_RATIO);
+           FLOAT PrevPropOfHonor=abs(HONOR_RATIO);
            FLOAT PrevPropOfPCall=abs(CALLER_POPU);
-           FLOAT PrevPropOfOther=1-abs(BULLI_POPUL)-abs(HONOR_POPUL)-abs(CALLER_POPU);
+           FLOAT PrevPropOfOther= 1 - abs(BULLI_RATIO) - abs(HONOR_RATIO) - abs(CALLER_POPU);
 
            unsigned StatSteps=0;
 
@@ -1054,8 +1054,8 @@ void walk_params_prop()
            {
              HonorAgent::World.alloc(SIDE,SIDE);//Pocz�tek - alokacja agent�w �wiata
              double POPULATION=double(SIDE)*SIDE;   //Ile ich w og�le jest?
-             InitConnections(SIDE*SIDE*OUTFAR_LINKS_PER_AGENT);//Tworzenie sieci
-             InitAtributes(SIDE*SIDE); //Losowanie atrybut�w dla agent�w
+             InitConnections(SIDE * SIDE * FAR_LINKS_PER_AGENT);//Tworzenie sieci
+               InitAttributes(SIDE * SIDE); //Losowanie atrybut�w dla agent�w
              //CalculateStatistics(World); //Po raz pierwszy dla tych parametr�w
 
              for(step_counter=1;step_counter<=STOP_AFTER;/*step_counter++*/)
@@ -1218,12 +1218,12 @@ void walk_params_sele()
            {
              HonorAgent::World.alloc(SIDE,SIDE); //Początek — alokacja agentów świata
              double POPULATION=double(SIDE)*SIDE;      //Ile ich w ogóle jest?
-             InitConnections(SIDE*SIDE*OUTFAR_LINKS_PER_AGENT); //Tworzenie sieci
-             InitAtributes(SIDE*SIDE); //Losowanie atrybutów dla agentów
-             FLOAT PrevPropOfAgres=abs(BULLI_POPUL);
-             FLOAT PrevPropOfHonor=abs(HONOR_POPUL);
+             InitConnections(SIDE * SIDE * FAR_LINKS_PER_AGENT); //Tworzenie sieci
+               InitAttributes(SIDE * SIDE); //Losowanie atrybutów dla agentów
+             FLOAT PrevPropOfAgres=abs(BULLI_RATIO);
+             FLOAT PrevPropOfHonor=abs(HONOR_RATIO);
              FLOAT PrevPropOfPCall=abs(CALLER_POPU);
-             FLOAT PrevPropOfOther=1-abs(BULLI_POPUL)-abs(HONOR_POPUL)-abs(CALLER_POPU);
+             FLOAT PrevPropOfOther= 1 - abs(BULLI_RATIO) - abs(HONOR_RATIO) - abs(CALLER_POPU);
 
              //CalculateStatistics(World); //Po raz pierwszy dla tych parametrów (TODO DLACZEGO WYKOMENTOWANE???)
              for(step_counter=1;step_counter<=STOP_AFTER; /*step_counter++*/ )
@@ -1406,20 +1406,20 @@ void walk_honor_vs_agrr()
 
        for(FLOAT prop=PROPORTION_MIN,XX=0; prop <= PROPORTION_MAX; prop+=PROPORTION_STEP,XX++)
        {
-            //if(BULLI_POPUL>=0)  //????
-            //            BULLI_POPUL=prop;
+            //if(BULLI_RATIO>=0)  //????
+            //            BULLI_RATIO=prop;
 
            if(Compensation_mode)
             {
-              BULLI_POPUL=PROPORTION_MAX-prop;
-              HONOR_POPUL=prop;
+                BULLI_RATIO= PROPORTION_MAX - prop;
+                HONOR_RATIO=prop;
             }
             else
             {
-             if(HONOR_POPUL>=0)
-                    HONOR_POPUL=prop;
-             if(BULLI_POPUL>=0 )
-                    BULLI_POPUL=prop;
+             if(HONOR_RATIO >= 0)
+                 HONOR_RATIO=prop;
+             if(BULLI_RATIO >= 0 )
+                 BULLI_RATIO=prop;
             }
 
            cout << endl << "SYM " << YY << ' ' << XX << " Prop: " << prop << "\tSelect.: " << select << endl;
@@ -1439,8 +1439,8 @@ void walk_honor_vs_agrr()
            {
              HonorAgent::World.alloc(SIDE,SIDE); //Początek — alokacja agentów świata
              double POPULATION=double(SIDE)*SIDE;      //Ile ich w ogóle jest?
-             InitConnections(SIDE*SIDE*OUTFAR_LINKS_PER_AGENT); //Tworzenie sieci
-             InitAtributes(SIDE*SIDE); //Losowanie atrybutów dla agentów
+             InitConnections(SIDE * SIDE * FAR_LINKS_PER_AGENT); //Tworzenie sieci
+               InitAttributes(SIDE * SIDE); //Losowanie atrybutów dla agentów
              //CalculateStatistics(World); //Po raz pierwszy dla tych parametrów
              for(step_counter=1;step_counter<=STOP_AFTER; /*step_counter++*/ )
              {
@@ -1551,8 +1551,8 @@ void fixed_params_mode()
 {
     HonorAgent::World.alloc(SIDE,SIDE); //Początek, czyli alokacja agentów świata w static tablicy agentów świata
 
-    InitConnections(SIDE*SIDE*OUTFAR_LINKS_PER_AGENT);
-    InitAtributes(SIDE*SIDE);
+    InitConnections(SIDE * SIDE * FAR_LINKS_PER_AGENT);
+    InitAttributes(SIDE * SIDE);
     dump_step(HonorAgent::World,0);//Po raz pierwszy
     CalculateStatistics(HonorAgent::World); //Po raz pierwszy
 
@@ -1648,8 +1648,8 @@ void fixed_params_mode()
                             cout<<"\nStop after "<<STOP_AFTER<<" steps\a, and start iteration n# "<<RepetNum<<endl;
                             Reset_action_memories();
                             DeleteAllConnections();
-                            InitConnections(SIDE*SIDE*OUTFAR_LINKS_PER_AGENT);
-                            InitAtributes(SIDE*SIDE);
+                            InitConnections(SIDE * SIDE * FAR_LINKS_PER_AGENT);
+                            InitAttributes(SIDE * SIDE);
                             step_counter=0;
                             NumberOfKilled=0; //Trochę to partyzantka TODO ?
                             NumberOfKilledToday=0;
@@ -1876,16 +1876,16 @@ void save_stat()
             OutLog<<"\tNof"<<MnStrNam[i];
         OutLog<<'\t'<<"MeanAgres"<<'\t'<<"MeanHonor"<<'\t'<<"MeanCallPolice"<<'\t'
               <<"MeanFeiReputation"<<'\t'<<"MeanPower"<<'\t'<<"All killed"
-              <<'\t'<<"NOTHING"<<  '\t'<<"WITHDRAW"<<  '\t'<<"GIVEUP"<<  '\t'<<"HOOK"<<  '\t'<<"FIGHT"<<  '\t'<<"CALLAUTH"
-              <<'\t'<<"A.NOTHING"<<'\t'<<"A.WITHDRAW"<<'\t'<<"A.GIVEUP"<<'\t'<<"A.HOOK"<<'\t'<<"A.FIGHT"<<'\t'<<"A.CALLAUTH"
-              <<'\t'<<"H.NOTHING"<<'\t'<<"H.WITHDRAW"<<'\t'<<"H.GIVEUP"<<'\t'<<"H.HOOK"<<'\t'<<"H.FIGHT"<<'\t'<<"H.CALLAUTH"
-              <<'\t'<<"C.NOTHING"<<'\t'<<"C.WITHDRAW"<<'\t'<<"C.GIVEUP"<<'\t'<<"C.HOOK"<<'\t'<<"C.FIGHT"<<'\t'<<"C.CALLAUTH"
-              <<'\t'<<"R.NOTHING"<<'\t'<<"R.WITHDRAW"<<'\t'<<"R.GIVEUP"<<'\t'<<"R.HOOK"<<'\t'<<"R.FIGHT"<<'\t'<<"R.CALLAUTH"
+              <<'\t'<<"NOTHING"<<  '\t'<<"WITHDRAW"<<  '\t'<<"GIVE_UP"<<  '\t'<<"HOOK"<<  '\t'<<"FIGHT"<<  '\t'<<"CALL_AUTH"
+              <<'\t'<<"A.NOTHING"<<'\t'<<"A.WITHDRAW"<<'\t'<<"A.GIVE_UP"<<'\t'<<"A.HOOK"<<'\t'<<"A.FIGHT"<<'\t'<<"A.CALL_AUTH"
+              <<'\t'<<"H.NOTHING"<<'\t'<<"H.WITHDRAW"<<'\t'<<"H.GIVE_UP"<<'\t'<<"H.HOOK"<<'\t'<<"H.FIGHT"<<'\t'<<"H.CALL_AUTH"
+              <<'\t'<<"C.NOTHING"<<'\t'<<"C.WITHDRAW"<<'\t'<<"C.GIVE_UP"<<'\t'<<"C.HOOK"<<'\t'<<"C.FIGHT"<<'\t'<<"C.CALL_AUTH"
+              <<'\t'<<"R.NOTHING"<<'\t'<<"R.WITHDRAW"<<'\t'<<"R.GIVE_UP"<<'\t'<<"R.HOOK"<<'\t'<<"R.FIGHT"<<'\t'<<"R.CALL_AUTH"
               //RATIOS
-              <<'\t'<<"R%:A.NOTHING"<<'\t'<<"R%:A.WITHDRAW"<<'\t'<<"R%:A.GIVEUP"<<'\t'<<"R%:A.HOOK"<<'\t'<<"R%:A.FIGHT"<<'\t'<<"R%:A.CALLAUTH"
-              <<'\t'<<"R%:H.NOTHING"<<'\t'<<"R%:H.WITHDRAW"<<'\t'<<"R%:H.GIVEUP"<<'\t'<<"R%:H.HOOK"<<'\t'<<"R%:H.FIGHT"<<'\t'<<"R%:H.CALLAUTH"
-              <<'\t'<<"R%:C.NOTHING"<<'\t'<<"R%:C.WITHDRAW"<<'\t'<<"R%:C.GIVEUP"<<'\t'<<"R%:C.HOOK"<<'\t'<<"R%:C.FIGHT"<<'\t'<<"R%:C.CALLAUTH"
-              <<'\t'<<"R%:R.NOTHING"<<'\t'<<"R%:R.WITHDRAW"<<'\t'<<"R%:R.GIVEUP"<<'\t'<<"R%:R.HOOK"<<'\t'<<"R%:R.FIGHT"<<'\t'<<"R%:R.CALLAUTH";
+              <<'\t'<<"R%:A.NOTHING"<<'\t'<<"R%:A.WITHDRAW"<<'\t'<<"R%:A.GIVE_UP"<<'\t'<<"R%:A.HOOK"<<'\t'<<"R%:A.FIGHT"<<'\t'<<"R%:A.CALL_AUTH"
+              <<'\t'<<"R%:H.NOTHING"<<'\t'<<"R%:H.WITHDRAW"<<'\t'<<"R%:H.GIVE_UP"<<'\t'<<"R%:H.HOOK"<<'\t'<<"R%:H.FIGHT"<<'\t'<<"R%:H.CALL_AUTH"
+              <<'\t'<<"R%:C.NOTHING"<<'\t'<<"R%:C.WITHDRAW"<<'\t'<<"R%:C.GIVE_UP"<<'\t'<<"R%:C.HOOK"<<'\t'<<"R%:C.FIGHT"<<'\t'<<"R%:C.CALL_AUTH"
+              <<'\t'<<"R%:R.NOTHING"<<'\t'<<"R%:R.WITHDRAW"<<'\t'<<"R%:R.GIVE_UP"<<'\t'<<"R%:R.HOOK"<<'\t'<<"R%:R.FIGHT"<<'\t'<<"R%:R.CALL_AUTH";
         OutLog<<endl;
 
         if(REPETITION_LIMIT>1) //Gdy ma zrobić więcej powtórzeń tego samego eksperymentu
@@ -1898,18 +1898,18 @@ void save_stat()
         for(unsigned i=0;i<NumOfCounters;i++)
             OutLog<<'\t'<<MnStrenght[i].N;
 
-        OutLog<<'\t'<<MeanAgres<<'\t'<<MeanHonor<<'\t'<<MeanCallPolice<<'\t'
-              <<MeanFeiReputation<<'\t'<<MeanPower<<'\t'<<NumberOfKilled<<'\t'
-              <<      CoutersForAll.NOTHING<<'\t'<<      CoutersForAll.WITHDRAW<<'\t'<<      CoutersForAll.GIVEUP<<'\t'<<CoutersForAll.HOOK<<'\t'<<CoutersForAll.FIGHT<<'\t'<<CoutersForAll.CALLAUTH<<'\t'
-              <<   CoutersForBullys.NOTHING<<'\t'<<   CoutersForBullys.WITHDRAW<<'\t'<<   CoutersForBullys.GIVEUP<<'\t'<<CoutersForBullys.HOOK<<'\t'<<CoutersForBullys.FIGHT<<'\t'<<CoutersForBullys.CALLAUTH<<'\t'
-              <<   CoutersForHonors.NOTHING<<'\t'<<   CoutersForHonors.WITHDRAW<<'\t'<<   CoutersForHonors.GIVEUP<<'\t'<<CoutersForHonors.HOOK<<'\t'<<CoutersForHonors.FIGHT<<'\t'<<CoutersForHonors.CALLAUTH<<'\t'
-              <<  CoutersForCPolice.NOTHING<<'\t'<<  CoutersForCPolice.WITHDRAW<<'\t'<<  CoutersForCPolice.GIVEUP<<'\t'<<CoutersForCPolice.HOOK<<'\t'<<CoutersForCPolice.FIGHT<<'\t'<<CoutersForCPolice.CALLAUTH<<'\t'
-              <<CoutersForRationals.NOTHING<<'\t'<<CoutersForRationals.WITHDRAW<<'\t'<<CoutersForRationals.GIVEUP<<'\t'<<CoutersForRationals.HOOK<<'\t'<<CoutersForRationals.FIGHT<<'\t'<<CoutersForRationals.CALLAUTH<<'\t'
+        OutLog << '\t' << MeanAgres << '\t' << MeanHonor << '\t' << MeanCallPolice << '\t'
+               << MeanFeiReputation << '\t' << MeanPower << '\t' << NumberOfKilled << '\t'
+               << CoutersForAll.NOTHING << '\t' << CoutersForAll.WITHDRAW << '\t' << CoutersForAll.GIVEUP << '\t' << CoutersForAll.HOOK << '\t' << CoutersForAll.FIGHT << '\t' << CoutersForAll.CALLAUTH << '\t'
+               << CoutersForBullys.NOTHING << '\t' << CoutersForBullys.WITHDRAW << '\t' << CoutersForBullys.GIVEUP << '\t' << CoutersForBullys.HOOK << '\t' << CoutersForBullys.FIGHT << '\t' << CoutersForBullys.CALLAUTH << '\t'
+               << CoutersForHonors.NOTHING << '\t' << CoutersForHonors.WITHDRAW << '\t' << CoutersForHonors.GIVEUP << '\t' << CoutersForHonors.HOOK << '\t' << CoutersForHonors.FIGHT << '\t' << CoutersForHonors.CALLAUTH << '\t'
+               << CoutersForCPolice.NOTHING << '\t' << CoutersForCPolice.WITHDRAW << '\t' << CoutersForCPolice.GIVEUP << '\t' << CoutersForCPolice.HOOK << '\t' << CoutersForCPolice.FIGHT << '\t' << CoutersForCPolice.CALLAUTH << '\t'
+               << CoutersForRationals.NOTHING << '\t' << CoutersForRationals.WITHDRAW << '\t' << CoutersForRationals.GIVEUP << '\t' << CoutersForRationals.HOOK << '\t' << CoutersForRationals.FIGHT << '\t' << CoutersForRationals.CALLAUTH << '\t'
               //RATIOS
-              <<   CoutersForBullys.R_NOTHING()<<'\t'<<   CoutersForBullys.R_WITHDRAW()<<'\t'<<   CoutersForBullys.R_GIVEUP()<<'\t'<<CoutersForBullys.R_HOOK()<<'\t'<<CoutersForBullys.R_FIGHT()<<'\t'<<CoutersForBullys.R_CALLAUTH()<<'\t'
-              <<   CoutersForHonors.R_NOTHING()<<'\t'<<   CoutersForHonors.R_WITHDRAW()<<'\t'<<   CoutersForHonors.R_GIVEUP()<<'\t'<<CoutersForHonors.R_HOOK()<<'\t'<<CoutersForHonors.R_FIGHT()<<'\t'<<CoutersForHonors.R_CALLAUTH()<<'\t'
-              <<  CoutersForCPolice.R_NOTHING()<<'\t'<<  CoutersForCPolice.R_WITHDRAW()<<'\t'<<  CoutersForCPolice.R_GIVEUP()<<'\t'<<CoutersForCPolice.R_HOOK()<<'\t'<<CoutersForCPolice.R_FIGHT()<<'\t'<<CoutersForCPolice.R_CALLAUTH()<<'\t'
-              <<CoutersForRationals.R_NOTHING()<<'\t'<<CoutersForRationals.R_WITHDRAW()<<'\t'<<CoutersForRationals.R_GIVEUP()<<'\t'<<CoutersForRationals.R_HOOK()<<'\t'<<CoutersForRationals.R_FIGHT()<<'\t'<<CoutersForRationals.R_CALLAUTH()<<'\t';
+              << CoutersForBullys.R_NOTHING() << '\t' << CoutersForBullys.R_WITHDRAW() << '\t' << CoutersForBullys.R_GIVE_UP() << '\t' << CoutersForBullys.R_HOOK() << '\t' << CoutersForBullys.R_FIGHT() << '\t' << CoutersForBullys.R_CALL_AUTH() << '\t'
+               << CoutersForHonors.R_NOTHING() << '\t' << CoutersForHonors.R_WITHDRAW() << '\t' << CoutersForHonors.R_GIVE_UP() << '\t' << CoutersForHonors.R_HOOK() << '\t' << CoutersForHonors.R_FIGHT() << '\t' << CoutersForHonors.R_CALL_AUTH() << '\t'
+               << CoutersForCPolice.R_NOTHING() << '\t' << CoutersForCPolice.R_WITHDRAW() << '\t' << CoutersForCPolice.R_GIVE_UP() << '\t' << CoutersForCPolice.R_HOOK() << '\t' << CoutersForCPolice.R_FIGHT() << '\t' << CoutersForCPolice.R_CALL_AUTH() << '\t'
+                << CoutersForRationals.R_NOTHING() << '\t' << CoutersForRationals.R_WITHDRAW() << '\t' << CoutersForRationals.R_GIVE_UP() << '\t' << CoutersForRationals.R_HOOK() << '\t' << CoutersForRationals.R_FIGHT() << '\t' << CoutersForRationals.R_CALL_AUTH() << '\t';
         OutLog<<endl; //KONIEC LINII LOGU
 
         if(ConsoleLog)
@@ -1934,17 +1934,17 @@ void save_stat()
         for(unsigned i=0;i<NumOfCounters;i++)
             OutLog<<'\t'<<MnStrenght[i].N;
 
-        OutLog<<'\t'<<MeanAgres<<'\t'<<MeanHonor<<'\t'<<MeanCallPolice<<'\t'<<MeanFeiReputation<<'\t'<<MeanPower<<'\t'<<NumberOfKilled<<'\t'
-              <<CoutersForAll.NOTHING<<'\t'<<CoutersForAll.WITHDRAW<<'\t'<<CoutersForAll.GIVEUP<<'\t'<<CoutersForAll.HOOK<<'\t'<<CoutersForAll.FIGHT<<'\t'<<CoutersForAll.CALLAUTH<<'\t'
-              <<CoutersForBullys.NOTHING<<'\t'<<CoutersForBullys.WITHDRAW<<'\t'<<CoutersForBullys.GIVEUP<<'\t'<<CoutersForBullys.HOOK<<'\t'<<CoutersForBullys.FIGHT<<'\t'<<CoutersForBullys.CALLAUTH<<'\t'
-              <<CoutersForHonors.NOTHING<<'\t'<<CoutersForHonors.WITHDRAW<<'\t'<<CoutersForHonors.GIVEUP<<'\t'<<CoutersForHonors.HOOK<<'\t'<<CoutersForHonors.FIGHT<<'\t'<<CoutersForHonors.CALLAUTH<<'\t'
-              <<CoutersForCPolice.NOTHING<<'\t'<<CoutersForCPolice.WITHDRAW<<'\t'<<CoutersForCPolice.GIVEUP<<'\t'<<CoutersForCPolice.HOOK<<'\t'<<CoutersForCPolice.FIGHT<<'\t'<<CoutersForCPolice.CALLAUTH<<'\t'
-              <<CoutersForRationals.NOTHING<<'\t'<<CoutersForRationals.WITHDRAW<<'\t'<<CoutersForRationals.GIVEUP<<'\t'<<CoutersForRationals.HOOK<<'\t'<<CoutersForRationals.FIGHT<<'\t'<<CoutersForRationals.CALLAUTH<<'\t'
+        OutLog << '\t' << MeanAgres << '\t' << MeanHonor << '\t' << MeanCallPolice << '\t' << MeanFeiReputation << '\t' << MeanPower << '\t' << NumberOfKilled << '\t'
+               << CoutersForAll.NOTHING << '\t' << CoutersForAll.WITHDRAW << '\t' << CoutersForAll.GIVEUP << '\t' << CoutersForAll.HOOK << '\t' << CoutersForAll.FIGHT << '\t' << CoutersForAll.CALLAUTH << '\t'
+               << CoutersForBullys.NOTHING << '\t' << CoutersForBullys.WITHDRAW << '\t' << CoutersForBullys.GIVEUP << '\t' << CoutersForBullys.HOOK << '\t' << CoutersForBullys.FIGHT << '\t' << CoutersForBullys.CALLAUTH << '\t'
+               << CoutersForHonors.NOTHING << '\t' << CoutersForHonors.WITHDRAW << '\t' << CoutersForHonors.GIVEUP << '\t' << CoutersForHonors.HOOK << '\t' << CoutersForHonors.FIGHT << '\t' << CoutersForHonors.CALLAUTH << '\t'
+               << CoutersForCPolice.NOTHING << '\t' << CoutersForCPolice.WITHDRAW << '\t' << CoutersForCPolice.GIVEUP << '\t' << CoutersForCPolice.HOOK << '\t' << CoutersForCPolice.FIGHT << '\t' << CoutersForCPolice.CALLAUTH << '\t'
+               << CoutersForRationals.NOTHING << '\t' << CoutersForRationals.WITHDRAW << '\t' << CoutersForRationals.GIVEUP << '\t' << CoutersForRationals.HOOK << '\t' << CoutersForRationals.FIGHT << '\t' << CoutersForRationals.CALLAUTH << '\t'
               //RATIOS
-              <<   CoutersForBullys.R_NOTHING()<<'\t'<<   CoutersForBullys.R_WITHDRAW()<<'\t'<<   CoutersForBullys.R_GIVEUP()<<'\t'<<CoutersForBullys.R_HOOK()<<'\t'<<CoutersForBullys.R_FIGHT()<<'\t'<<CoutersForBullys.R_CALLAUTH()<<'\t'
-              <<   CoutersForHonors.R_NOTHING()<<'\t'<<   CoutersForHonors.R_WITHDRAW()<<'\t'<<   CoutersForHonors.R_GIVEUP()<<'\t'<<CoutersForHonors.R_HOOK()<<'\t'<<CoutersForHonors.R_FIGHT()<<'\t'<<CoutersForHonors.R_CALLAUTH()<<'\t'
-              <<  CoutersForCPolice.R_NOTHING()<<'\t'<<  CoutersForCPolice.R_WITHDRAW()<<'\t'<<  CoutersForCPolice.R_GIVEUP()<<'\t'<<CoutersForCPolice.R_HOOK()<<'\t'<<CoutersForCPolice.R_FIGHT()<<'\t'<<CoutersForCPolice.R_CALLAUTH()<<'\t'
-              <<CoutersForRationals.R_NOTHING()<<'\t'<<CoutersForRationals.R_WITHDRAW()<<'\t'<<CoutersForRationals.R_GIVEUP()<<'\t'<<CoutersForRationals.R_HOOK()<<'\t'<<CoutersForRationals.R_FIGHT()<<'\t'<<CoutersForRationals.R_CALLAUTH()<<'\t';
+              << CoutersForBullys.R_NOTHING() << '\t' << CoutersForBullys.R_WITHDRAW() << '\t' << CoutersForBullys.R_GIVE_UP() << '\t' << CoutersForBullys.R_HOOK() << '\t' << CoutersForBullys.R_FIGHT() << '\t' << CoutersForBullys.R_CALL_AUTH() << '\t'
+               << CoutersForHonors.R_NOTHING() << '\t' << CoutersForHonors.R_WITHDRAW() << '\t' << CoutersForHonors.R_GIVE_UP() << '\t' << CoutersForHonors.R_HOOK() << '\t' << CoutersForHonors.R_FIGHT() << '\t' << CoutersForHonors.R_CALL_AUTH() << '\t'
+               << CoutersForCPolice.R_NOTHING() << '\t' << CoutersForCPolice.R_WITHDRAW() << '\t' << CoutersForCPolice.R_GIVE_UP() << '\t' << CoutersForCPolice.R_HOOK() << '\t' << CoutersForCPolice.R_FIGHT() << '\t' << CoutersForCPolice.R_CALL_AUTH() << '\t'
+               << CoutersForRationals.R_NOTHING() << '\t' << CoutersForRationals.R_WITHDRAW() << '\t' << CoutersForRationals.R_GIVE_UP() << '\t' << CoutersForRationals.R_HOOK() << '\t' << CoutersForRationals.R_FIGHT() << '\t' << CoutersForRationals.R_CALL_AUTH() << '\t';
 
 
         OutLog<<endl;
@@ -1986,10 +1986,10 @@ void dump_step(wb_dynmatrix<HonorAgent>& World,unsigned step)
              <<"NumOfActions"<<TAB
              <<"R_NOTHING"<<TAB
              <<"R_WITHDRAW"<<TAB
-             <<"R_GIVEUP"<<TAB
+             <<"R_GIVE_UP"<<TAB
              <<"R_HOOK"<<TAB
              <<"R_FIGHT" <<TAB
-             <<"R_CALLAUTH"<<TAB
+             <<"R_CALL_AUTH"<<TAB
 
              <<"NeighSize"<<endl;
     }
@@ -2024,13 +2024,13 @@ void dump_step(wb_dynmatrix<HonorAgent>& World,unsigned step)
                  <<(double)Ag.HisLifeTime<<TAB
                  <<(double)Ag.HisActions.Counter<<TAB;
 
-            Dumps<< scientific << setprecision(2)
-                 <<Ag.HisActions.R_NOTHING()<<TAB
-                 <<Ag.HisActions.R_WITHDRAW()<<TAB
-                 <<Ag.HisActions.R_GIVEUP()<<TAB
-                 <<Ag.HisActions.R_HOOK() <<TAB
-                 <<Ag.HisActions.R_FIGHT() <<TAB
-                 <<Ag.HisActions.R_CALLAUTH()<<TAB;
+            Dumps << scientific << setprecision(2)
+                  << Ag.HisActions.R_NOTHING() << TAB
+                  << Ag.HisActions.R_WITHDRAW() << TAB
+                  << Ag.HisActions.R_GIVE_UP() << TAB
+                  << Ag.HisActions.R_HOOK() << TAB
+                  << Ag.HisActions.R_FIGHT() << TAB
+                  << Ag.HisActions.R_CALL_AUTH() << TAB;
 
             Dumps<<(double)Ag.NeighSize()<<endl;
         }
@@ -2051,8 +2051,10 @@ void PrintHonorAgentInfo(ostream& o,const HonorAgent& H)
     o<<endl;
     o<<"Life time: "<<"\t Succeses"<<"\t Fails"<<"\t Action counter"<<endl;
     o<<'\t'<<H.HisLifeTime<<'\t'<<H.HisActions.Successes<<'\t'<<H.HisActions.Fails<<'\t'<<H.HisActions.Counter<<endl;
-    o<<HonorAgent::Decision2str(HonorAgent::NOTHING)<<'\t'<<HonorAgent::Decision2str(HonorAgent::WITHDRAW)<<'\t'<<HonorAgent::Decision2str(HonorAgent::GIVEUP)<<'\t'<<HonorAgent::Decision2str(HonorAgent::HOOK)<<'\t'<<HonorAgent::Decision2str(HonorAgent::FIGHT)<<'\t'<<HonorAgent::Decision2str(HonorAgent::CALLAUTH)<<endl;
-    o<<'\t'<<H.HisActions.R_NOTHING()*100<<"%\t"<<H.HisActions.R_WITHDRAW()*100<<"%\t"<<H.HisActions.R_GIVEUP()*100<<"%\t"<<H.HisActions.R_HOOK()*100<<"%\t"<<H.HisActions.R_FIGHT()*100<<"%\t"<<H.HisActions.R_CALLAUTH()*100<<endl;
+    o << HonorAgent::Decision2str(HonorAgent::NOTHING) << '\t' << HonorAgent::Decision2str(HonorAgent::WITHDRAW) << '\t' << HonorAgent::Decision2str(HonorAgent::GIVE_UP) << '\t' << HonorAgent::Decision2str(HonorAgent::HOOK) << '\t' << HonorAgent::Decision2str(HonorAgent::FIGHT) << '\t' << HonorAgent::Decision2str(HonorAgent::CALL_AUTH) << endl;
+    o << '\t' <<H.HisActions.R_NOTHING()*100 << "%\t" <<H.HisActions.R_WITHDRAW()*100 << "%\t" <<
+                                                                                               H.HisActions.R_GIVE_UP() * 100 << "%\t" << H.HisActions.R_HOOK() * 100 << "%\t" << H.HisActions.R_FIGHT() * 100 << "%\t" <<
+                                                                                                                                                                                                                        H.HisActions.R_CALL_AUTH() * 100 << endl;
     o<<endl;
     o<<"Individual color: rgb("<<unsigned(H.GetColor().r)<<','<<unsigned(H.GetColor().g)<<','<<unsigned(H.GetColor().b)<<')'<<endl;    //Obliczony, kt�r�� z funkcji koduj�cych kolor
 

@@ -33,7 +33,7 @@
 ##  TO THE 2012 REPORT
 *  0.26 : Graph of space - in the proportion of honor and police to each other dividing 1/2 or 2/3 of the total.
         - Another way of coloring "cultures" in the image of the simulation world (red-aggression, green-honor, blue-callPolice)
-        -  Trying to change the "crash" schedule for GIVEUP - so they can die, but more destructive to the bullys!?!?
+        -  Trying to change the "crash" schedule for GIVE_UP - so they can die, but more destructive to the bullys!?!?
         -  Noise death needed for evolution - NOISE_KILL parameter evolution:
         - local smear random neighbor
             + TODO - random Agent from the whole - DONE FINALLY.

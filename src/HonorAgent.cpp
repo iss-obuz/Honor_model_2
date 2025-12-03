@@ -19,8 +19,8 @@ using namespace std;
 
 /// HonorAgent class static fields (Pola statyczne klasy HonorAgent)
 //*/////////////////////////////////////////////////////////////////////////////////
-bool     HonorAgent::CzyTorus=false; ///< World topology (Topologia świata)
-unsigned HonorAgent::licznik_zyc=0; ///< How many living agents (Ile żywych agentów)
+bool     HonorAgent::use_torus=false; ///< World topology (Topologia świata)
+unsigned HonorAgent::life_counter=0; ///< How many living agents (Ile żywych agentów)
 
 wb_dynmatrix<HonorAgent> HonorAgent::World; ///< ŚWIAT AGENTÓW
 
@@ -34,7 +34,7 @@ unsigned AgressRandomAttack=0; ///< Counter for random aggressive "culture" atta
 //*//////////////////////////////////////////////////////////////////////////////////
 
 /// Random initialization of agents' attributes (Losowa inicjalizacja atrybutów agentów)
-void InitAtributes(FLOAT HowMany)
+void InitAttributes(FLOAT HowMany)
 {
     for(int y=0;y<SIDE;y++)
         for(int x=0;x<SIDE;x++)
@@ -42,15 +42,15 @@ void InitAtributes(FLOAT HowMany)
 }
 
 /// Randomizing the agent's attribute values. (Losowanie wartości atrybutów agenta.)
-///\default iPOWLIMIT==0
-void HonorAgent::RandomReset(float iPOWLIMIT)
+///\default POW_LIMIT==0
+void HonorAgent::RandomReset(float POW_LIMIT)
 {
-        this->ID=++licznik_zyc;
+        this->ID=++life_counter;
         this->HisActions.Reset();
         this->HisLifeTime=0;
 
-        if(iPOWLIMIT>0)
-            PowLimit=iPOWLIMIT; //Ustawia jaką siłę może osiągnąć maksymalnie, gdy nie traci
+        if(POW_LIMIT > 0)
+            PowLimit=POW_LIMIT; //Ustawia jaką siłę może osiągnąć maksymalnie, gdy nie traci
         else
             PowLimit=(DRAND()+DRAND()+DRAND()+DRAND()+DRAND()+DRAND())/6;  //Losuje jaką siłę może osiągnąć maksymalnie
 
@@ -65,20 +65,20 @@ void HonorAgent::RandomReset(float iPOWLIMIT)
         // (INICJOWANE alternatywnie, czyli jeden z prawdopodobieństwem 1 a reszta 0.)
         //*///////////////////////////////////////////////////////////////////////////////////////////////////
         Honor=0;CallPolice=0; //Default values (Wartości domyślne)
-                                                                                           assert(fabs(BULLI_POPUL)<1);
+                                                                                           assert(fabs(BULLI_RATIO) < 1);
 
-        if(fabs(BULLI_POPUL)<1)
+        if(fabs(BULLI_RATIO) < 1)
         {
-           Agres=(DRAND()<fabs(BULLI_POPUL)?1:0); //Albo jest AGRESYWNY, albo nie jest
+           Agres=(DRAND()<fabs(BULLI_RATIO) ? 1 : 0); //Albo jest AGRESYWNY, albo nie jest
 
            if(Agres!=1) //Jak nie jest
            {
-             Honor=(DRAND()*(1-fabs(BULLI_POPUL)) < fabs(HONOR_POPUL)? 1 : 0 ); //Jest HONOROWY albo nie jest
+             Honor=(DRAND()*(1-fabs(BULLI_RATIO)) < fabs(HONOR_RATIO) ? 1 : 0 ); //Jest HONOROWY albo nie jest
 
              if(Honor!=1)   //NIE AGRESYWNY i NIE HONOROWY
              {              //"dignity" albo racjonalny
                if(!ONLY3STRAT) //jeśli TRUE to znikają RACJONALNI (czyli wzywanie policji jest wtedy "strategią resztkową")
-                    CallPolice=(DRAND()*(1-fabs(BULLI_POPUL)-fabs(HONOR_POPUL)) < fabs(CALLER_POPU)? 1 : 0); //Jest albo nie jest
+                    CallPolice=(DRAND()*(1 - fabs(BULLI_RATIO) - fabs(HONOR_RATIO)) < fabs(CALLER_POPU) ? 1 : 0); //Jest albo nie jest
                else
                     CallPolice=1; //Nie ma strategii "racjonalnej"
              }
@@ -109,7 +109,7 @@ void InitConnections(FLOAT HowManyFar)
                 for(int yy=y-MOORE_RAD;yy<=y+MOORE_RAD;yy++)
                     if(!(xx==x && yy==y))//Wyci�cie samego siebie
                     {
-                        if(HonorAgent::CzyTorus) //JAKA TOPOLOGIA ŚWIATA?
+                        if(HonorAgent::use_torus) //JAKA TOPOLOGIA ŚWIATA?
                             Ag.addNeigh((xx+SIDE)%SIDE,(yy+SIDE)%SIDE); //Zamknięte w torus
                         else
                         if(0<=xx && xx<SIDE && 0<=yy && yy<SIDE)
@@ -182,7 +182,7 @@ HonorAgent::Decision  HonorAgent::check_partner(unsigned& x,unsigned& y)
         (this->Agres>0.0 && DRAND()<this->Agres))  //NOT USED REALLY in PAPER 2015! Jak nie w pełni agresywny to losujemy chęć!
         &&
         ( Ag.HonorFeiRep<=(RATIONALITY*this->Power+(1-RATIONALITY)*HonorFeiRep) //Agresywność, gdy przeciwnik SŁABSZY! Więc agresywni by nigdy by tak ze sobą nie walczyli!     RULE 2 !
-        ||( DRAND()< AGRES_AGGRESSION   )  )                                     //Agresywność spontaniczna (bez kalkulacji)
+        ||(DRAND() < BULLI_AGGRESSION   )  )                                     //Agresywność spontaniczna (bez kalkulacji)
         )
         {                                                                                       assert(this->Agres>0.0);
             if(  Ag.HonorFeiRep>this->HonorFeiRep )
@@ -226,7 +226,7 @@ HonorAgent::Decision  HonorAgent::check_partner(unsigned& x,unsigned& y)
 ///
 HonorAgent::Decision  HonorAgent::answer_if_hooked(unsigned x,unsigned y)
 {
-     this->MemOfLastDecision=GIVEUP; //DOMYŚLNA DECYZJA
+     this->MemOfLastDecision=GIVE_UP; //DOMYŚLNA DECYZJA
 
      HonorAgent& Ag=World[y][x];    //Zapamiętanie referencji do sąsiada
 
@@ -236,7 +236,7 @@ HonorAgent::Decision  HonorAgent::answer_if_hooked(unsigned x,unsigned y)
      || (this->CallPolice>0 && DRAND()<this->CallPolice)
      )
      {
-        this->MemOfLastDecision=CALLAUTH;
+        this->MemOfLastDecision=CALL_AUTH;
      }
      else
      if(this->Honor>0.999999
@@ -309,7 +309,7 @@ void one_step(unsigned long& step_counter)
                           AgH.lost_power(-0.75*TEST_DIVIDER*DRAND());    //Stracił siłę, bo walczył
                        }
                     break;
-           case HonorAgent::GIVEUP:
+           case HonorAgent::GIVE_UP:
                        {
                           AgI.change_reputation(+0.5*TEST_DIVIDER,AgH); //Zyskał, bo wygrał bez walki.
                                                                                  //Czy na pewno więcej niż w walce???
@@ -321,7 +321,7 @@ void one_step(unsigned long& step_counter)
                           AgH.lost_power(-0.5*TEST_DIVIDER*DRAND()/*DRAND()*/); //Ale trochę dostał w ucho dla przykładu   (!!!)
                        }
                     break;
-           case HonorAgent::CALLAUTH:
+           case HonorAgent::CALL_AUTH:
                       if(DRAND()<POLICE_EFFIC) //Czy pomoc przybyła?
                       {
                           AgI.change_reputation(-0.35*TEST_DIVIDER,AgH); //Stracił, bo zaczepił i dostał bęcki od policji
@@ -432,7 +432,7 @@ void power_recovery_step()
             if(Rodzic.Power>0) //Tylko wtedy może się rodzić! NEW TODO Check  - JAK NIE TO ROZLICZENIE NA PÓŹNIEJ?
             {
              if(FAMILY_HONOR) //Jeżeli są stosunki rodzinne to śmierć ma różne konsekwencje społeczne
-                Ag.SmiercDona();
+                 Ag.GodfatherDeath();
 
              if(Inherit_MAX_POWER)
              {
@@ -452,7 +452,7 @@ void power_recovery_step()
              if(FAMILY_HONOR) //I urodziny także mają konsekwencje rodzinne
              {
                 Ag.HonorFeiRep=Rodzic.HonorFeiRep; //Ma reputacje rodzica, bo on go chroni
-                PowiazRodzicielsko(Rodzic,Ag);  //anty SmiercDona();
+                 ConnectWithFamily(Rodzic, Ag);  //anty GodfatherDeath();
              }
 
              // Aktualizacja liczników
@@ -638,7 +638,7 @@ void HonorAgent::change_reputation(double delta, HonorAgent& reason, int level)/
     {
         if(Cappo==NULL) //Nie ma żyjącego ojca. Tu ślad się urywa.
             Cappo=this;
-        Cappo->change_reputation_thru_family(delta); //Ale może mieć dzieci...
+        Cappo->ChangeReputationThruFamily(delta); //Ale może mieć dzieci...
     }
     else
     if(delta > 0) //Wzrost
@@ -689,7 +689,7 @@ bool HonorAgent::IsMyFamilyMember(HonorAgent& Other, HonorAgent*& Cappo, int Max
 
 /// Family reputation change. For the agent, and for his children recursively.
 /// (Rodzinna zmiana reputacji. Dla siebie oraz dla dzieci rekurencyjnie)
-void HonorAgent::change_reputation_thru_family(double Delta)
+void HonorAgent::ChangeReputationThruFamily(double Delta)
 {
     if(Delta>0) //Wzrost
     {
@@ -705,7 +705,7 @@ void HonorAgent::change_reputation_thru_family(double Delta)
         if(Neighbourhood[j].Child==1)   //Ten jest dzieckiem
         {
             HonorAgent& Dziecko=World[Neighbourhood[j].Y][Neighbourhood[j].X];
-            Dziecko.change_reputation_thru_family(Delta); //REKURENCJA W DLA RODZINY
+            Dziecko.ChangeReputationThruFamily(Delta); //REKURENCJA W DLA RODZINY
         }
 }
 
