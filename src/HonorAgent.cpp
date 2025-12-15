@@ -49,6 +49,8 @@ void HonorAgent::RandomReset(float POW_LIMIT)
         this->HisActions.Reset();
         this->HisLifeTime=0;
 
+        this->Color=RGB(25+RANDOM(220),25+RANDOM(220),25+RANDOM(220));
+
         if(POW_LIMIT > 0)
             PowLimit=POW_LIMIT; //Ustawia jaką siłę może osiągnąć maksymalnie, gdy nie traci
         else
@@ -158,7 +160,7 @@ void InitConnections(FLOAT HowManyFar)
 /// as in the end of family/clan honor.
 /// \detailsPL
 /// Zarówno Honorowi jak i agresywni mają spontaniczną agresję, która może być różnie prawdopodobna dla każdej z kultur.
-/// W obu przypadkach pełni ona rolę "challengu" - weryfikuje czy istniejąca reputacja jest prawdziwa.
+/// W obu przypadkach odgrywa ona rolę "challengu" - weryfikuje czy istniejąca reputacja jest prawdziwa.
 /// Bez tego ktoś "silny z natury" mógłby nigdy nie zostać sprowadzony do realiów.
 /// Poza tym Agresywni mają swoją agresję strategiczną, czyli atakowanie słabszych.
 /// Gdy atrybut Agresywności jest mniejszy niż 1 to atak może być przeprowadzany nie zawsze,
@@ -182,7 +184,7 @@ HonorAgent::Decision  HonorAgent::check_partner(unsigned& x,unsigned& y)
         (this->Agres>0.0 && DRAND()<this->Agres))  //NOT USED REALLY in PAPER 2015! Jak nie w pełni agresywny to losujemy chęć!
         &&
         ( Ag.HonorFeiRep<=(RATIONALITY*this->Power+(1-RATIONALITY)*HonorFeiRep) //Agresywność, gdy przeciwnik SŁABSZY! Więc agresywni by nigdy by tak ze sobą nie walczyli!     RULE 2 !
-        ||(DRAND() < BULLI_AGGRESSION   )  )                                     //Agresywność spontaniczna (bez kalkulacji)
+        ||(DRAND() < BULLI_AGGRESSION   )  )                                    //Agresywność spontaniczna (bez kalkulacji)
         )
         {                                                                                       assert(this->Agres>0.0);
             if(  Ag.HonorFeiRep>this->HonorFeiRep )
@@ -383,7 +385,7 @@ unsigned NumberOfKilledToday=0; ///< Death counter per step
 /// \detailsPL
 /// "Post-krok" czyli odpoczynek po ciężkim dniu ;-)
 ///
-/// Jeśli agent nie przeżył bo zabrakło mu siły, to jest podmieniany na jeden z kilku sposobów.
+/// Jeśli agent nie przeżył, bo zabrakło mu siły, to jest podmieniany na jeden z kilku sposobów.
 /// Jego miejsce może zająć:
 ///     1) Nowy losowy agent
 ///     2) Potomek sąsiada
@@ -418,62 +420,63 @@ void power_recovery_step()
         {
            if(population_growth==0) //Tryb z prawdopodobieństwami inicjalnymi
            {                                                                                assert(FAMILY_HONOR==false);
-            Ag.RandomReset(); //Po prostu w jego miejsce losowy agent
-            NumberOfKilled++;
-            NumberOfKilledToday++;
+             Ag.RandomReset(); //Po prostu w jego miejsce losowy agent
+             NumberOfKilled++;
+             NumberOfKilledToday++;
            }
            else
            if(population_growth==1) //Tryb lokalny. Z losowym sąsiadem jako rodzicem
            {
-            unsigned ktory=RANDOM(Ag.NeighSize()),xx,yy;
-            bool pom=Ag.getNeigh(ktory,xx,yy);
-            HonorAgent& Rodzic=HonorAgent::World[yy][xx];
+                unsigned ktory=RANDOM(Ag.NeighSize()),xx,yy;
+                bool pom=Ag.getNeigh(ktory,xx,yy);
+                HonorAgent& Rodzic=HonorAgent::World[yy][xx];
 
-            if(Rodzic.Power>0) //Tylko wtedy może się rodzić! NEW TODO Check  - JAK NIE TO ROZLICZENIE NA PÓŹNIEJ?
-            {
-             if(FAMILY_HONOR) //Jeżeli są stosunki rodzinne to śmierć ma różne konsekwencje społeczne
-                 Ag.GodfatherDeath();
+                if(Rodzic.Power>0) //Tylko wtedy może się rodzić! NEW TODO Check  - JAK NIE TO ROZLICZENIE NA PÓŹNIEJ?
+                {
+                     if(FAMILY_HONOR) //Jeżeli są stosunki rodzinne to śmierć ma różne konsekwencje społeczne
+                         Ag.GodfatherDeath();
 
-             if(Inherit_MAX_POWER)
-             {
-                float NewLimit=Rodzic.PowLimit + NOISE_LIMIT
-                              *Rodzic.PowLimit*(( (DRAND()+DRAND()+DRAND()+DRAND()+DRAND()+DRAND())/6 ) - 0.5);
-                                                                                                     assert(NewLimit>0);
-                if(NewLimit>1) NewLimit=1; //Zerowy nie będzie, ale może przekraczać 1
-                Ag.RandomReset(NewLimit);
-             }
-             else
-                Ag.RandomReset();
+                     if(Inherit_MAX_POWER)
+                     {
+                        float NewLimit=Rodzic.PowLimit + NOISE_LIMIT
+                                      *Rodzic.PowLimit*(( (DRAND()+DRAND()+DRAND()+DRAND()+DRAND()+DRAND())/6 ) - 0.5);
+                                                                                                             assert(NewLimit>0);
+                        if(NewLimit>1) NewLimit=1; //Zerowy nie będzie, ale może przekraczać 1
+                        Ag.RandomReset(NewLimit);
+                     }
+                     else
+                        Ag.RandomReset();
 
-             Ag.Agres=Rodzic.Agres;
-             Ag.Honor=Rodzic.Honor;
-             Ag.CallPolice=Rodzic.CallPolice;
+                     Ag.Agres=Rodzic.Agres;
+                     Ag.Honor=Rodzic.Honor;
+                     Ag.CallPolice=Rodzic.CallPolice;
 
-             if(FAMILY_HONOR) //I urodziny także mają konsekwencje rodzinne
-             {
-                Ag.HonorFeiRep=Rodzic.HonorFeiRep; //Ma reputacje rodzica, bo on go chroni
-                 ConnectWithFamily(Rodzic, Ag);  //anty GodfatherDeath();
-             }
+                     if(FAMILY_HONOR) //I urodziny także mają konsekwencje rodzinne
+                     {
+                        Ag.HonorFeiRep=Rodzic.HonorFeiRep; //Ma reputacje rodzica, bo on go chroni
+                        ConnectWithFamily(Rodzic, Ag);  //anty GodfatherDeath();
+                        Ag.MakeColor(Rodzic);
+                     }
 
-             // Aktualizacja liczników
-             NumberOfKilled++;
-             NumberOfKilledToday++;
-            }
+                     // Aktualizacja liczników
+                     NumberOfKilled++;
+                     NumberOfKilledToday++;
+                }
            }
            else
            if(population_growth==3) //Tryb GLOBALNY z losowym członkiem populacji jako rodzicem
            {                                                                                assert(FAMILY_HONOR==false);
-            unsigned xx=RANDOM(SIDE),yy=RANDOM(SIDE);
-            HonorAgent& Drugi=HonorAgent::World[yy][xx]; //Uchwyt do agenta
-            if(Drugi.Power>0)  //Może postać do rozliczenia na później.
-            {
-             Ag.RandomReset();
-             Ag.Agres=Drugi.Agres;
-             Ag.Honor=Drugi.Honor;
-             Ag.CallPolice=Drugi.CallPolice;
-             NumberOfKilled++;
-             NumberOfKilledToday++;
-            }
+                unsigned xx=RANDOM(SIDE),yy=RANDOM(SIDE);
+                HonorAgent& Drugi=HonorAgent::World[yy][xx]; //Uchwyt do agenta
+                if(Drugi.Power>0)  //Może postać do rozliczenia na później.
+                {
+                 Ag.RandomReset();
+                 Ag.Agres=Drugi.Agres;
+                 Ag.Honor=Drugi.Honor;
+                 Ag.CallPolice=Drugi.CallPolice;
+                 NumberOfKilled++;
+                 NumberOfKilledToday++;
+                }
            }
         }
         else // Ewentualnie, jeżeli jednak nie umarł, to...
@@ -637,7 +640,10 @@ void HonorAgent::change_reputation(double delta, HonorAgent& reason, int level)/
     if(&reason != NULL && FAMILY_HONOR && !IsMyFamilyMember(reason, Cappo) )//Jeżeli działa honor rodzinny to ...
     {
         if(Cappo==NULL) //Nie ma żyjącego ojca. Tu ślad się urywa.
-            Cappo=this;
+        {
+            Cappo = this;
+        }
+        this->FamColor=Cappo->Color;
         Cappo->ChangeReputationThruFamily(delta); //Ale może mieć dzieci...
     }
     else

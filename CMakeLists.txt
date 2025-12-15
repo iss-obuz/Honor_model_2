@@ -26,8 +26,29 @@ else()
 endif()
 
 # SymShellLight library is required for compilation. 
-# Enter path here.
-set(SYMSHELL "../SymShellLight" )
+if(EXISTS "${honor_model_SOURCE_DIR}/../SymShellLight")
+    message("1:")
+    get_filename_component(SYMSHELL "${honor_model_SOURCE_DIR}/../SymShellLight" ABSOLUTE)
+elseif(EXISTS "${honor_model_SOURCE_DIR}/../symShellLight")
+    message("2:")
+    get_filename_component(SYMSHELL "${honor_model_SOURCE_DIR}/../symShellLight" ABSOLUTE)
+elseif(EXISTS "${honor_model_SOURCE_DIR}/../../public/SymShellLight")
+    message("3:")
+    get_filename_component(SYMSHELL "${honor_model_SOURCE_DIR}/../../public/SymShellLight" ABSOLUTE)
+elseif(EXISTS "${honor_model_SOURCE_DIR}/../../public/symShellLight")
+    message("4:")
+    get_filename_component(SYMSHELL "${honor_model_SOURCE_DIR}/../../public/symShellLight" ABSOLUTE)
+elseif(EXISTS "${honor_model_SOURCE_DIR}/../../../public/SymShellLight")
+    message("5:")
+    get_filename_component(SYMSHELL "${honor_model_SOURCE_DIR}/../../public/SymShellLight" ABSOLUTE)
+elseif(EXISTS "${honor_model_SOURCE_DIR}/../../../public/symShellLight")
+    message("6:")
+    get_filename_component(SYMSHELL "${honor_model_SOURCE_DIR}/../../public/symShellLight" ABSOLUTE)
+else()
+    message(FATAL_ERROR  ${PROJECT_NAME} ": SymShell sources not found!")
+endif()
+
+message(${PROJECT_NAME} ": SymShell used from ${SYMSHELL}.")
 
 add_subdirectory( ${SYMSHELL} ${SYMSHELL} )
 

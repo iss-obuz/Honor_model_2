@@ -258,7 +258,7 @@ unsigned REPETITION_LIMIT=1;  ///< How many repetitions of the same experiment s
 unsigned RepetNum=1;          ///< Which is the next repeat? - DO NOT CHANGE MANUALLY!
                               ///< (Która to kolejna repetycja?  - NIE ZMIENIAĆ RĘCZNIE!)
 
-unsigned STOP_AFTER=60000;   ///< After what time the simulation ends automatically.
+unsigned STOP_AFTER=180000;   ///< After what time the simulation ends automatically.
                              ///< (Po jakim czasie symulacja kończy się automatycznie)
 unsigned STAT_AFTER=0;       ///< After what time to start counting the final statistics.
                              ///< (Po jakim czasie zacząć zliczać końcowe statystyki)
@@ -282,13 +282,14 @@ bool  ConsoleLog=false;    ///< Whether it uses console event logging. Important
 bool  VisShorLinks=false;  ///< Do close links visualization? (Czy wizualizacja bliskich linków)
 bool  VisFarLinks=false;   ///< Do you visualize far links? (Czy wizualizacja dalekich linków)
 bool  VisAgents=true;      ///< Need visualize the properties of agents? (Czy wizualizacja właściwości agentów)
-bool  VisReputation=false; ///< Is it intended to outline the agents' reputation as an outline? (Czy robić obwódki z reputacji agentów)
+bool  VisReputation=true;  ///< Is it intended to outline the agents' reputation as an outline? (Czy robić obwódki z reputacji agentów)
+bool  VisFamilies=true;    ///< Is main color of agent a color of his family? (Czy zamiast koloru strategii agenci sa wypełnieni kolorem rodziny?)
 bool  VisDecision=false;   ///< Is it supposed to visualize the final decision? (Czy wizualizować ostatnią decyzję)
 
 bool  BatchPlotPower=false;   ///< Should it display the value of MnPower in batches or MnProportions?
-                              ///< (Czy wyświetlać w batch-ach wartość "MnPower" czy jednak "MnProportions"?)
+                              ///< (Czy wyświetlać w batch-ach wartość "MnPower", czy jednak "MnProportions"?)
 bool  Batch_true_color=false; ///< Whether true-color color scales or 256 colors of the rainbow?
-                              ///< (Czy skale kolorów true-color czy 256 kolorów tęczy)
+                              ///< (Czy skale kolorów true-color, czy 256 kolorów tęczy)
 
 bool  dump_screens=false; ///< Should it take regular screenshots?
                           ///< (Czy robić regularne zrzuty ekranów)
@@ -682,18 +683,14 @@ void replot(wb_dynmatrix<HonorAgent>& World)
     {
         for(unsigned h=0;h<SIDE;h++)
         {
-
             HonorAgent& Ag=World[v][h];            // Zapamiętanie referencji do agenta
             ssh_rgb Color=Ag.GetColor();
 
             if(VisAgents)
             {
                 if(!(VisFarLinks || VisShorLinks))
-                    fill_rect(h*VSIZ,v*VSIZ,h*VSIZ+VSIZ,v*VSIZ+VSIZ,255+128); //Generowanie nieprzezroczystego t�a
+                    fill_rect(h*VSIZ,v*VSIZ,h*VSIZ+VSIZ,v*VSIZ+VSIZ,255+128); //Generowanie nieprzezroczystego tła
 
-                //set_brush_rgb(Ag.GetFeiReputation()*255,0,Ag.CallPolice*255);
-                //set_pen_rgb(  Ag.GetFeiReputation()*255,0,Ag.CallPolice*255,1,SSH_LINE_SOLID);
-                set_brush_rgb(Ag.Agres*255,Ag.Honor*255,Ag.CallPolice*255);
                 if(VisReputation)
                 {   //Ag.GetFeiReputation()*255,0,Ag.CallPolice*255
                     //Ag.GetFeiReputation()*255,Ag.GetFeiReputation()*255,0
@@ -702,9 +699,19 @@ void replot(wb_dynmatrix<HonorAgent>& World)
                 else
                     set_pen_rgb(Ag.Agres*255,Ag.Honor*255,Ag.CallPolice*255,1,SSH_LINE_SOLID);
 
+                if(VisFamilies)
+                {
+                    auto co=Ag.GetFamColor();
+                    set_brush_rgb(co.r,co.g,co.b); //Kolor rodzinny agenta
+                }
+                else
+                    set_brush_rgb(Ag.Agres*255,Ag.Honor*255,Ag.CallPolice*255);
+
                 unsigned ASiz=1+/*sqrt*/(Ag.Power)*VSIZ;
-                fill_rect_d(h*VSIZ,v*VSIZ,h*VSIZ+ASiz,v*VSIZ+ASiz);
-                fill_rect_d(spw+h*SSIZ,StartPro+v*SSIZ,spw+(h+1)*SSIZ,StartPro+(v+1)*SSIZ);
+                fill_rect_d(h*VSIZ,v*VSIZ,h*VSIZ+ASiz,v*VSIZ+ASiz); //Główny ekran
+
+                if(VisFamilies) set_brush_rgb(Ag.Agres*255,Ag.Honor*255,Ag.CallPolice*255);
+                fill_rect_d(spw+h*SSIZ,StartPro+v*SSIZ,spw+(h+1)*SSIZ,StartPro+(v+1)*SSIZ); //Podgląd samych strategii
 
                 line_d(h*VSIZ,v*VSIZ+ASiz,h*VSIZ+ASiz,v*VSIZ+ASiz);
                 line_d(h*VSIZ+ASiz,v*VSIZ,h*VSIZ+ASiz,v*VSIZ+ASiz);
@@ -719,11 +726,11 @@ void replot(wb_dynmatrix<HonorAgent>& World)
             set_brush_rgb(Ag.GetFeiReputation()*255,0,Ag.CallPolice*255);
             fill_rect_d(spw+h*SSIZ,v*SSIZ,spw+(h+1)*SSIZ,(v+1)*SSIZ);
 
-            // Wizualizacja siły w odcieniach szaro�ci
-            ssh_color ColorPow=257+unsigned(Ag.Power*254); //
+            // Wizualizacja siły w odcieniach szarości
+            ssh_color ColorPow=257+unsigned(Ag.Power*254); //...
             fill_rect(spw+h*SSIZ,StartPow+v*SSIZ,spw+(h+1)*SSIZ,StartPow+(v+1)*SSIZ,ColorPow);
 
-            // Dynamika procesów - punkty w rżnych kolorach co się dzieło w ostatnim kroku
+            // Dynamika procesów — punkty w różnych kolorach co się działo w ostatnim kroku
             ssh_color ColorDyn=0;
             switch(Ag.LastDecision(false)){
                 case HonorAgent::WITHDRAW:
@@ -752,10 +759,10 @@ void replot(wb_dynmatrix<HonorAgent>& World)
            "COMPONENT VIEW",
            double(MeanAgres),double(MeanHonor),double(MeanCallPolice),NumberOfKilledToday,NumberOfKilled);
     /*double MeanFeiReputation=0; double MeanCallPolice=0; double MeanPower=0;*/
-    printc(spw,(SIDE+1)*SSIZ,150,255,        "%s Mn.Fe=%g Mn.Cp=%g    ","Reput.",double(MeanFeiReputation),double(MeanCallPolice));   // HonorAgent::MaxReputation
-    printc(spw,StartPow+(SIDE+1)*SSIZ,50,255,"%s mn=%f                ","Power",double( MeanPower ));
-    printc(spw,StartDyn+(SIDE+1)*SSIZ,50,255,"%s H:%u F:%u C:%u       ","Local interactions",CoutersForAll.HOOK,CoutersForAll.FIGHT,CoutersForAll.CALLAUTH);
-    printc(spw,StartPro+(SIDE+1)*SSIZ,50,255,"%s A:%u H:%u P:%u O:%u      ","Counters",MnStrenght[0].N,MnStrenght[1].N,MnStrenght[2].N,MnStrenght[3].N);
+    printc(spw,(SIDE+1)*SSIZ,150,255,        "%s Mn.Fe=%g Mn.Cp=%g     ","Reput.",double(MeanFeiReputation),double(MeanCallPolice));   // HonorAgent::MaxReputation
+    printc(spw,StartPow+(SIDE+1)*SSIZ,50,255,"%s mn=%f                 ","Power",double( MeanPower ));
+    printc(spw,StartDyn+(SIDE+1)*SSIZ,50,255,"%s H:%u F:%u C:%u        ","Local interactions",CoutersForAll.HOOK,CoutersForAll.FIGHT,CoutersForAll.CALLAUTH);
+    printc(spw,StartPro+(SIDE+1)*SSIZ,50,255,"%s A:%u H:%u P:%u O:%u   ","Counters",MnStrenght[0].N,MnStrenght[1].N,MnStrenght[2].N,MnStrenght[3].N);
     printc(spw,StartPro+(SIDE+1)*SSIZ+char_height('X'),128,255,"%u MC ",step_counter);
     //HonorAgent::Max...=Real...; //Aktualizacja max-ów do policzonych przed chwilę realnych
     flush_plot();

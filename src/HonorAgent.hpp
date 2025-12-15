@@ -130,7 +130,7 @@ class HonorAgent
 
     double         Power; //!< Real power or strength (0..1)
     double      PowLimit; //!< What strength can reach up (Jaką siłę może osiągnąć maksymalnie)
-    double         Agres; //!< Propensity to attack (0..1), ONLY 0 or 1 used currently (Agresywność czyli skłonność do atakowania)
+    double         Agres; //!< Aggressiveness — Propensity to attack (0..1), ONLY 0 or 1 used currently (Agresywność czyli skłonność do atakowania)
     double         Honor; //!< Propensity to be honor (0..1), ONLY 0 or 1 used currently (Skłonność do podjęcia obrony niezależnie od siły przeciwnika)
     double    CallPolice; //!< The probability of calling the police (0..1), ONLY 0 or 1 used currently (Prawdopodobieństwo wzywania policji)
 
@@ -143,6 +143,7 @@ class HonorAgent
        ,Agres(0),Honor(0),HonorFeiRep(0.5),CallPolice(0.25)
        ,MemOfLastDecision(HonorAgent::NOTHING),ID(0)
        ,Color(RGB(25+RANDOM(220),25+RANDOM(220),25+RANDOM(220)))
+       ,FamColor(RGB(0,0,0))
     {}
 
     void RandomReset(float POW_LIMIT=0); //!< Drawing attribute values (Losowanie wartości atrybutów)
@@ -186,7 +187,9 @@ class HonorAgent
 
     // Methods for statistics & visualization
     //*/////////////////////////////////////////////
-    ssh_rgb   GetColor() const {return Color;} //Individual color non modifiable from the outside (Nie modyfikowalny z zewnątrz indywidualny kolor)
+    void      MakeColor(HonorAgent& Parent);   //!< Tworzy kolor agenta jako wariacje koloru rodzica
+    ssh_rgb   GetColor() const {return Color;} //!< Individual color non modifiable from the outside (Nie modyfikowalny z zewnątrz indywidualny kolor)
+    ssh_rgb   GetFamColor() const {return FamColor;} //Family color
     double    GetFeiReputation() const { return HonorFeiRep;}
     wbrtm::wb_pchar  AgentCultureStr() const;// Returns textual representation of culture Agent (Zwraca tekstową reprezentacje kultury agenta)
     unsigned  AgentCultureMask() const;// (Returns bitwise representations of culture of the agent (Zwraca maskę 3 bitów, pokazującą gdzie jest różne od 0. Aggr:1. bit, Honor:2.bit CallPoll:3.bit)
@@ -203,6 +206,7 @@ class HonorAgent
     double                       HonorFeiRep; //!< Reputation as a warrior (0..1). (Reputacja wojownika)
     ssh_rgb                            Color; //!< Unchangeable, or calculated by any of the functions for color coding.
                                         //!< (Indywidualny i niezmienny lub obliczony którąś z funkcji kodujących kolor)
+    ssh_rgb                         FamColor; //!< Kolor rodziny, kopiowany od aktualnie sprawdzonego cappo.
 }; // End of class Agent
 
 // Global simulation functions defined in HonorAgent.cpp
@@ -280,6 +284,13 @@ inline wbrtm::wb_pchar  HonorAgent::AgentCultureStr()  const
         Pom.add("Dignity");
 
    return Pom;
+}
+
+inline void HonorAgent::MakeColor(HonorAgent& Parent)
+{
+    auto pco=Parent.GetColor();
+    pco.r+=1; pco.g+=1; pco.b+=1;
+    Color=pco;
 }
 
 // Declarations of global variables & functions for statistics.
@@ -364,7 +375,7 @@ inline void     HonorAgent::GodfatherDeath()
             HonorAgent& Dziecko=World[Neighbourhood[i].Y][Neighbourhood[i].X];
             for(unsigned j=0;j<Dziecko.NeighSize();j++)
             if( this==&World[Dziecko.Neighbourhood[j].Y][Dziecko.Neighbourhood[j].X] ) //Siebie znalazł na tej liście...
-            {                                                                                                           assert(Dziecko.Neighbourhood[j].Parent==1);
+            {                                                                assert(Dziecko.Neighbourhood[j].Parent==1);
                 Dziecko.Neighbourhood[j].Parent=0;
                 //Rodzic.notifyChildDeath(j); //?
                 break;
@@ -377,19 +388,19 @@ inline void     HonorAgent::GodfatherDeath()
 inline void ConnectWithFamily(HonorAgent& Parent, HonorAgent& Ag)
 {
     for(unsigned i=0; i < Ag.NeighSize(); i++)
-    if(&Parent == &HonorAgent::World[Ag.Neighbourhood[i].Y][Ag.Neighbourhood[i].X] ) //Znalazł rodzica na swojej liście...
-{                                                                                                                       assert(Ag.Neighbourhood[i].Parent == 0);
-    Ag.Neighbourhood[i].Parent=1;
-        break;
-    }
+        if(&Parent == &HonorAgent::World[Ag.Neighbourhood[i].Y][Ag.Neighbourhood[i].X] ) //Znalazł rodzica na swojej liście...
+        {                                                                       assert(Ag.Neighbourhood[i].Parent == 0);
+            Ag.Neighbourhood[i].Parent=1;
+            break;
+        }
 
     for(unsigned j=0; j < Parent.NeighSize(); j++)
-    if(&Ag == &HonorAgent::World[Parent.Neighbourhood[j].Y][Parent.Neighbourhood[j].X] ) //Siebie odnalazł na liście u rodzica...
-    {                                                                                                                   assert(Parent.Neighbourhood[j].Child == 0);
-        Parent.Neighbourhood[j].Child=1;
-        //Parent.notifyChildBirdth(j); //?
-        break;
-    }
+        if(&Ag == &HonorAgent::World[Parent.Neighbourhood[j].Y][Parent.Neighbourhood[j].X] ) //Siebie odnalazł na liście u rodzica...
+        {                                                                    assert(Parent.Neighbourhood[j].Child == 0);
+            Parent.Neighbourhood[j].Child=1;
+            //Parent.notifyChildBirdth(j); //?
+            break;
+        }
 }
 
 //*//////////////////////////////////////////////////////////////////////////////
