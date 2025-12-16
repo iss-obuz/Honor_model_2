@@ -1,10 +1,10 @@
 # CMAKE configuration for HONOR simulation project
 ######################################################################
 # @authors: Wojciech Borkowski, Andrzej Nowak
-# @date: 2024-02-09 (last modifications)
+# @date: 2025-12-13 (last modifications)
 #
 cmake_minimum_required(VERSION 3.6)
-project(honor_model)
+project(honor_model_2)
 set(CMAKE_CXX_STANDARD 11) # See: https://matgomes.com/setting-cpp-standard-cmake/
 
 # Define WITHTOOLS if you want build helpers applications!
@@ -26,24 +26,24 @@ else()
 endif()
 
 # SymShellLight library is required for compilation. 
-if(EXISTS "${honor_model_SOURCE_DIR}/../SymShellLight")
+if(EXISTS "${honor_model_2_SOURCE_DIR}/../SymShellLight")
     message("1:")
-    get_filename_component(SYMSHELL "${honor_model_SOURCE_DIR}/../SymShellLight" ABSOLUTE)
-elseif(EXISTS "${honor_model_SOURCE_DIR}/../symShellLight")
+    get_filename_component(SYMSHELL "${honor_model_2_SOURCE_DIR}/../SymShellLight" ABSOLUTE)
+elseif(EXISTS "${honor_model_2_SOURCE_DIR}/../symShellLight")
     message("2:")
-    get_filename_component(SYMSHELL "${honor_model_SOURCE_DIR}/../symShellLight" ABSOLUTE)
-elseif(EXISTS "${honor_model_SOURCE_DIR}/../../public/SymShellLight")
+    get_filename_component(SYMSHELL "${honor_model_2_SOURCE_DIR}/../symShellLight" ABSOLUTE)
+elseif(EXISTS "${honor_model_2_SOURCE_DIR}/../../public/SymShellLight")
     message("3:")
-    get_filename_component(SYMSHELL "${honor_model_SOURCE_DIR}/../../public/SymShellLight" ABSOLUTE)
-elseif(EXISTS "${honor_model_SOURCE_DIR}/../../public/symShellLight")
+    get_filename_component(SYMSHELL "${honor_model_2_SOURCE_DIR}/../../public/SymShellLight" ABSOLUTE)
+elseif(EXISTS "${honor_model_2_SOURCE_DIR}/../../public/symShellLight")
     message("4:")
-    get_filename_component(SYMSHELL "${honor_model_SOURCE_DIR}/../../public/symShellLight" ABSOLUTE)
-elseif(EXISTS "${honor_model_SOURCE_DIR}/../../../public/SymShellLight")
+    get_filename_component(SYMSHELL "${honor_model_2_SOURCE_DIR}/../../public/symShellLight" ABSOLUTE)
+elseif(EXISTS "${honor_model_2_SOURCE_DIR}/../../../public/SymShellLight")
     message("5:")
-    get_filename_component(SYMSHELL "${honor_model_SOURCE_DIR}/../../public/SymShellLight" ABSOLUTE)
-elseif(EXISTS "${honor_model_SOURCE_DIR}/../../../public/symShellLight")
+    get_filename_component(SYMSHELL "${honor_model_2_SOURCE_DIR}/../../public/SymShellLight" ABSOLUTE)
+elseif(EXISTS "${honor_model_2_SOURCE_DIR}/../../../public/symShellLight")
     message("6:")
-    get_filename_component(SYMSHELL "${honor_model_SOURCE_DIR}/../../public/symShellLight" ABSOLUTE)
+    get_filename_component(SYMSHELL "${honor_model_2_SOURCE_DIR}/../../public/symShellLight" ABSOLUTE)
 else()
     message(FATAL_ERROR  ${PROJECT_NAME} ": SymShell sources not found!")
 endif()
@@ -55,13 +55,13 @@ add_subdirectory( ${SYMSHELL} ${SYMSHELL} )
 include_directories( ${SYMSHELL} )
 
 if(WINDOWS) # only for WINDOWS
-    add_executable( honor
+    add_executable( honor2
                     src/HonorAgent.cpp
                     src/honor.cpp
                     src/symshmsc.rc
                     src/symshwin.ico
                    )
-    target_link_libraries( honor
+    target_link_libraries( honor2
          "-L${SYMSHELL}"
          wbsyshLight
          )
@@ -69,12 +69,12 @@ endif(WINDOWS)
 
 if(X11) # only for X11 LIB
     add_definitions( -DHAVE_X11 -DUSE_X11 )
-    add_executable( honor
+    add_executable( honor2
                     src/HonorAgent.hpp
                     src/HonorAgent.cpp
                     src/honor.cpp
                    )
-    target_link_libraries( honor
+    target_link_libraries( honor2
          "-L${SYMSHELL}"
          wbsyshLight
          X11 Xpm

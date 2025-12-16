@@ -1,27 +1,29 @@
-﻿/// @file Agent for "culture of honor" model - declarations
-/// @date 2025-12 (last modifications)
+﻿/// @file
+/// @brief Agent for "culture of honor" model - declarations
+/// @date 2025-12-16 (last modifications)
 //*//////////////////////////////////////////////////////////////////////////////
 
-//#define TESTING_RULE_LITERALS 1     //VERY SLOW!!!
-//#define HONOR_WITHOUT_REPUTATION 1  //Testing of "null hypothesis"
+//#define TESTING_RULE_LITERALS 1     ///< VERY SLOW!!!
+//#define HONOR_WITHOUT_REPUTATION 1  ///< Testing of "null hypothesis"
 
 typedef double FLOAT;
 #include "iostream"
 #define USES_STDC_RAND
 #include "../INCLUDE/Randoms.h"
 #include "wb_ptr.hpp"
+#include "symshell.h" //Types from this file are used here.
 
-extern unsigned population_growth; ///< Default: 1; How population growth? (SPOSOBY ROZMNAŻANIA)
+extern unsigned population_growth; ///< How population growth. (SPOSOBY ROZMNAŻANIA):
                                    ///< 0-as initial distribution,(0 - wg. inicjalnych proporcji)
                                    ///< 1-as local distribution,  (1 - lokalne rozmazanie losowe sąsiad)
                                    ///< 2-NOT IMPLEMENTED         (2 - lokalne rozmazanie proporcjonalne do siły)
                                    ///< 3-as global distribution  (3 - globalne, losowy agent z całości populacji)
-                                   ///< ONLY #1 IS USED FOR THE PAPER in 2015
+                                   ///< Default: 1; AND ONLY #1 IS USED FOR THE PAPER in 2015
 
 // Parameters for world of agents:
 //*///////////////////////////////
-const unsigned              SIDE = 100;    ///< SIDE*SIDE is the size of matrix
-const int              MOORE_RAD = 3;      ///< Should be int not unsigned because of randomization formula
+const unsigned              SIDE = 100;    ///< SIDE*SIDE is the size of matrix.
+const int              MOORE_RAD = 3;      ///< Should be int not unsigned because of randomization formula.
 const unsigned        MOORE_SIZE = (4*MOORE_RAD*MOORE_RAD)+4*MOORE_RAD;   ///< Size of Moore neigh.
 
 const FLOAT            FAR_LINKS_PER_AGENT=0.5; ///< Default:0.5; - How many extra long links as a fraction of the number of agents (ile jest dodatkowych dalekich linków jako ułamek liczby agentów)
@@ -30,34 +32,36 @@ const unsigned         FAR_LINKS = unsigned(SIDE * SIDE * FAR_LINKS_PER_AGENT * 
 const unsigned         MAX_LINKS = MOORE_SIZE + 2/*for sure*/ + (FAR_LINKS/(SIDE*SIDE)? FAR_LINKS/(SIDE*SIDE):2); ///< Max size of agent's link list (ile maksymalnie może miec agent linków)
 
 
-/// POPULATIONS OF AGENTS:
-extern FLOAT      BULLI_RATIO; ///< Default is `-0.25`; Ratio of aggressive agents  ("-" jest sygnałem zafiksowania w trybie batch (?!?!?! TODO? }
-extern FLOAT      HONOR_RATIO; ///< Default is `0.25`; Ratio of honor agents (Jaka część agentów populacji jest honorowa)
-extern FLOAT      CALLER_POPU; ///< Default is `0.25`; Ratio of police callers (Jaka część wzywa policję zamiast walczyć)
-extern bool        ONLY3STRAT; ///< Default is false; Without rational strategy (Czy tylko 3 strategie?)
+// POPULATIONS OF AGENTS:
+//*//////////////////////
+extern FLOAT      BULLI_RATIO; ///< Default is `-0.25`; Ratio of aggressive agents.  ("-" jest sygnałem zafiksowania w trybie batch (?!?!?! TODO? }
+extern FLOAT      HONOR_RATIO; ///< Default is `0.25`; Ratio of honor agents. (Jaka część agentów populacji jest honorowa)
+extern FLOAT      CALLER_POPU; ///< Default is `0.25`; Ratio of police callers. (Jaka część wzywa policję zamiast walczyć)
+extern bool        ONLY3STRAT; ///< Default is `false`; Without rational strategy. (Czy tylko 3 strategie?)
 
-extern FLOAT     POLICE_EFFIC; ///< Default:=0.050; Probability of efficient interventions of authority (Z jakim prawdopodobieństwem wezwana policja obroni agenta)
+extern FLOAT     POLICE_EFFIC; ///< Default:=0.050; Probability of efficient interventions of authority. (Z jakim prawdopodobieństwem wezwana policja obroni agenta)
 
-extern bool     Inherit_MAX_POWER;  ///< NOT USED? Default = false; //Czy nowi agenci dziedziczą (z szumem) max power po rodzicu?
-extern FLOAT    NOISE_LIMIT;        ///< NOT USED? Default=0.3; //Mnożnik szumu
+extern bool     Inherit_MAX_POWER;  ///< Default = false; Is it power inheritetable. NOT USED? (Czy nowi agenci dziedziczą (z szumem) max power po rodzicu?)
+extern FLOAT    NOISE_LIMIT;        ///< For adding to `parent.PowLimit`. Default=0.3; Used in `power_recovery_step()`
 
-//const FLOAT     BULLISM_LIMIT=-1; ///< NOT USED? (Nie używany. Jak ujemne to rozkład Pareto lub brak rozkładu, jak dodatnie to dzwonowy. Jak BULLI_RATIO 1 to decyduje rozkład sterowany BULLISM_LIMIT)
-const FLOAT        RATIONALITY=0.0; ///< NOT USED? How realistically the agent evaluate their own strength (Jak realistycznie ocenia własną siłę vs. według własnej reputacji)
+//const FLOAT     BULLISM_LIMIT=-1; ///< NOT USED (Nie używany. Jak ujemne to rozkład Pareto lub brak rozkładu, jak dodatnie to dzwonowy. Jak BULLI_RATIO 1 to decyduje rozkład sterowany BULLISM_LIMIT)
+const FLOAT        RATIONALITY=0.0; ///< How realistically the agent evaluate their own strength. (Jak realistycznie ocenia własną siłę vs. według własnej reputacji) Used in HonorAgent::check_partner()
 
-/// OTHER GLOBAL PARAMETERS OF THE MODEL
-extern FLOAT    RECOVERY_POWER;   ///< Default=0.005; What part of the agent force recovers after one step (Jaką część siły odzyskuje po jednym kroku)
+// OTHER GLOBAL PARAMETERS OF THE MODEL:
+//*/////////////////////////////////////
+extern FLOAT    RECOVERY_POWER;   ///< Default=0.005; What part of the agent force recovers after one step. (Jaką część siły odzyskuje po jednym kroku)
 extern FLOAT    USED_SELECTION;   ///< Default=0.05; How easily losers die. (Jak łatwo przegrani umierają. Gdy 0 to brak selekcji w ogóle!)
 extern FLOAT    MORTALITY;        ///< Default=0.01; How easy it is to die for reasons of chance or nonsocial — illness, accident, etc. WHEN ARE 0 = "ELVES" (Jak łatwo można zginąć z przyczyn losowych czyli niespołecznych - choroba, wypadek itp. JAK 0 TO SĄ "ELFY")
-extern FLOAT    EXTERNAL_REPLACE; ///< Default=0.001; What is the probability of random exchange for a new agent with the initial distribution (Jakie jest prawdopodobieństwo wymiany na losowego agenta)
+extern FLOAT    EXTERNAL_REPLACE; ///< Default=0.001; What is the probability of random exchange for a new agent with the initial distribution. (Jakie jest prawdopodobieństwo wymiany na losowego agenta)
 
-extern FLOAT    BULLI_AGGRESSION; ///< Default=0.0250; Random aggression of AGGRESSIVE/BULLIES (POZIOM PRZYPADKOWEJ AGRESJI AGRESYWNYCH - bez kalkulacji kto silniejszy!)
-extern FLOAT    HONOR_AGGRESSION; ///< Default=0.0250; Random aggression of HONOR (Bazowy poziom agresji tylko dla HONOROWYCH)
+extern FLOAT    BULLI_AGGRESSION; ///< Default=0.0250; Random aggression of AGGRESSIVE/BULLIES. (POZIOM PRZYPADKOWEJ AGRESJI AGRESYWNYCH - bez kalkulacji kto silniejszy!)
+extern FLOAT    HONOR_AGGRESSION; ///< Default=0.0250; Random aggression of HONOR. (Bazowy poziom agresji tylko dla HONOROWYCH)
 
 
-extern bool     FAMILY_HONOR; ///< Default NOT USED IN PAPER = false; Czy reputacja przenosi się na członków rodziny?
+extern bool     FAMILY_HONOR; ///< Switch for sharimg reputation with family. (Czy reputacja przenosi się na członków rodziny?)
 
 #ifdef TESTING_RULE_LITERALS
-extern FLOAT    TEST_DIVIDER;//=1.0; ONLY FOR ADVANCED ROBUSTNESS STUDIES (Służy do modyfikacji stałych liczbowych używanych w regułach reakcji agenta)
+extern FLOAT    TEST_DIVIDER;//=1.0; ONLY FOR ADVANCED ROBUSTNESS STUDIES. (Służy do modyfikacji stałych liczbowych używanych w regułach reakcji agenta)
 #else
 const  FLOAT    TEST_DIVIDER=1;
 #endif
@@ -66,14 +70,14 @@ const  FLOAT    TEST_DIVIDER=1;
 class HonorAgent
 {
  public: 
-    static  wbrtm::wb_dynmatrix<HonorAgent> World; //!< One common world of agents (Wspólny świat agentów)
+    static  wbrtm::wb_dynmatrix<HonorAgent> World; //!< One common world of agents. (Wspólny świat agentów)
 
 
-    // INTERNAL TYPES
-    //*////////////////////////////////////
-    enum Decision {NOTHING=-1,WITHDRAW=0,GIVE_UP=1,HOOK=2,FIGHT=3,CALL_AUTH=4};
+    // INTERNAL TYPES of HonorAgents:
+    //*//////////////////////////////
+    enum Decision {NOTHING=-1,WITHDRAW=0,GIVE_UP=1,HOOK=2,FIGHT=3,CALL_AUTH=4}; //!< Possible decisions.
 
-    static const char* Decision2str(Decision Deci)
+    static const char* Decision2str(Decision Deci) //!< Textual form of possible decisions.
     {                               // {NOTHING=-1, WITHDRAW=0, GIVE_UP=1, HOOK=2, FIGHT=3, CALL_AUTH=4};
        static const char* Names[]={"NOTHING","WITHDRAW","GIVE_UP","HOOK","FIGHT","CALL_AUTH","?????"};
        return Names[Deci+1];
@@ -82,21 +86,21 @@ class HonorAgent
     /// Structure for counting activities.
     struct Actions
     {
-        unsigned   Counter=0; //!< How many times he decided (Ile razy decydował)
-        unsigned     Fails=0; //!< How many times lost (Ile razy przegrał)
-        unsigned Successes=0; //!< How many times he won (Ile razy wygrał)
+        unsigned   Counter=0; //!< How many times he decided. (Ile razy decydował)
+        unsigned     Fails=0; //!< How many times lost. (Ile razy przegrał)
+        unsigned Successes=0; //!< How many times he won. (Ile razy wygrał)
 
-        union { //!< FOR WHAT? TODO? Counters?
+        union { //!< Action counters.
         struct { unsigned NOTHING=0, WITHDRAW=0, GIVEUP=0, HOOK=0, FIGHT=0, CALLAUTH=0;};
         unsigned Tab[6]; };
 
         // METHODS OF STRUCT ACTIONS:
-        //*///////////////////////////////////
+        //*//////////////////////////
         Actions() { Reset();}
 
         void Reset(){NOTHING=WITHDRAW=GIVEUP=HOOK=FIGHT=CALLAUTH=Fails=Successes=Counter=0;}
 
-        void Count(HonorAgent::Decision Deci); ///< Counting of decisions
+        void Count(HonorAgent::Decision Deci); ///< Counting of decisions.
 
         //void operator () (HonorAgent::Decision Deci) { Count(Deci);} ///< NOT USED (Operator wywołania!)
 
@@ -110,34 +114,34 @@ class HonorAgent
         double R_CALL_AUTH() const { return (Counter ==0 ? -1:(CALLAUTH==0?0:CALLAUTH/double(Counter)));}
     };//End of Struct Actions
 
-    /// Connection to ...
+    /// \brief Connection to neib. agents.
     struct LinkTo {
         unsigned X,Y;
-        unsigned Parent:1;
-        unsigned Child;
+        unsigned Parent:1; //!< This is parent of the agent.
+        unsigned Child:1;  //!< This is one of the children. (@NOTE: TU WAZNA ZMIANA. Nie byl to bit ale caly int!!!)
         LinkTo() {X=Y=-1;Parent=0;Child=0;}
     };
 
  public: 
     // ATTRIBUTES:
     //*///////////
-    static unsigned life_counter; //!< To create unique identifiers of agents (Do tworzenia unikalnych identyfikatorów agentów)
-    static bool        use_torus; //!< Is the geometry of the torus or the island with the banks (Czy geometria torusa czy wyspa z brzegami)
+    static unsigned life_counter; //!< To create unique identifiers of agents. (Do tworzenia unikalnych identyfikatorów agentów)
+    static bool        use_torus; //!< Is the geometry of the torus or the island with the banks. (Czy geometria torusa czy wyspa z brzegami)
 
-    unsigned          ID; //!<  The unique identifier, just subsequent agents in the particular course (Unikalny identyfikator, po prostu kolejni agenci  w danym przebiegu)
-    unsigned HisLifeTime; //!< Life span (Czas życia)
-    Actions   HisActions; //!<  Counters of actions (Liczniki akcji)
+    unsigned          ID; //!< The unique identifier, just subsequent agents in the particular course. (Unikalny identyfikator, po prostu kolejni agenci  w danym przebiegu)
+    unsigned HisLifeTime; //!< Life span. (Czas życia)
+    Actions   HisActions; //!< Counters of actions. (Liczniki akcji)
 
-    double         Power; //!< Real power or strength (0..1)
-    double      PowLimit; //!< What strength can reach up (Jaką siłę może osiągnąć maksymalnie)
-    double         Agres; //!< Aggressiveness — Propensity to attack (0..1), ONLY 0 or 1 used currently (Agresywność czyli skłonność do atakowania)
-    double         Honor; //!< Propensity to be honor (0..1), ONLY 0 or 1 used currently (Skłonność do podjęcia obrony niezależnie od siły przeciwnika)
-    double    CallPolice; //!< The probability of calling the police (0..1), ONLY 0 or 1 used currently (Prawdopodobieństwo wzywania policji)
+    double         Power; //!< Real power or strength (0..1).
+    double      PowLimit; //!< What strength can reach up. (Jaką siłę może osiągnąć maksymalnie)
+    double         Agres; //!< Aggressiveness — Propensity to attack (0..1), ONLY 0 or 1 used currently. (Agresywność czyli skłonność do atakowania)
+    double         Honor; //!< Propensity to be honor (0..1), ONLY 0 or 1 used currently. (Skłonność do podjęcia obrony niezależnie od siły przeciwnika)
+    double    CallPolice; //!< The probability of calling the police (0..1), ONLY 0 or 1 used currently. (Prawdopodobieństwo wzywania policji)
 
     // METHOD OF CLASS AGENT:
     //*//////////////////////
 
-    HonorAgent(): //!< CONSTRUCTOR
+    HonorAgent(): //!< CONSTRUCTOR.
         Neighbourhood(MAX_LINKS),HowManyNeigh(0)
        ,Power(0),PowLimit(0),HisLifeTime(0)
        ,Agres(0),Honor(0),HonorFeiRep(0.5),CallPolice(0.25)
@@ -146,58 +150,59 @@ class HonorAgent
        ,FamColor(RGB(0,0,0))
     {}
 
-    void RandomReset(float POW_LIMIT=0); //!< Drawing attribute values (Losowanie wartości atrybutów)
+    void RandomReset(float POW_LIMIT=0); //!< Drawing attribute values. (Losowanie wartości atrybutów)
 
     // Neighbourhood Support ( Obsługa połączeń):
     //*//////////////////////////////////////////
-    unsigned NeighSize() const; //!< How many registered neighbors (Ile ma zarejestrowanych sąsiadów)
-    bool addNeigh(unsigned x,unsigned y); //!< Adds the specified neighbor at coordinates in the world, as far as can fit on the list (Dodaje sąsiada o określonych współrzędnych w świecie, o ile zmieści na liście)
-    bool getNeigh(unsigned i,unsigned& x,unsigned& y) const; //!< Reads the coordinates of the i-th neighbor (Odczytuje współrzędne sąsiada i-tego sąsiada)
+    unsigned NeighSize() const; //!< How many registered neighbors. (Ile ma zarejestrowanych sąsiadów)
+    bool addNeigh(unsigned x,unsigned y); //!< Adds the specified neighbor at coordinates in the world, as far as can fit on the list. (Dodaje sąsiada o określonych współrzędnych w świecie, o ile zmieści na liście)
+    bool getNeigh(unsigned i,unsigned& x,unsigned& y) const; //!< Reads the coordinates of the i-th neighbor. (Odczytuje współrzędne sąsiada i-tego sąsiada)
 
     //bool getNeigh(HonorAgent* Ptr,unsigned i,unsigned& x,unsigned& y) const; //!< Looking for a neighbor via the pointer (Szuka sąsiada po wskaźniku)
-    void forgetAllNeigh(); //!<  He forgets all added neighbors, which does not mean that they forget his (Zapomina wszystkich dodanych sąsiadów, co nie znaczy że oni zapominają jego)
-    static bool AreNeigh(int x1,int y1,int x2,int y2); //!<  Checking whether the two agents are adjacent in some way (Sprawdzanie czy dwaj agenci sąsiadują w jakiś sposób)
+    void forgetAllNeigh(); //!<  He forgets all added neighbors, which does not mean that they forget his. (Zapomina wszystkich dodanych sąsiadów, co nie znaczy że oni zapominają jego)
+    static bool AreNeigh(int x1,int y1,int x2,int y2); //!<  Checking whether the two agents are adjacent in some way. (Sprawdzanie czy dwaj agenci sąsiadują w jakiś sposób)
 
     //Method for making decision
-    Decision  check_partner(unsigned& x, unsigned& y); //!<  Choice of interaction partner  (Wybór partnera interakcji)
-    Decision  answer_if_hooked(unsigned x, unsigned y); //!<  The answer to provocation (Odpowiedź na zaczepkę)
-    void      change_reputation(double delta, HonorAgent& reason, int level=0); //!< (Wzrost lub spadek reputacji z zabezpieczeniem zakresu, i ewentualnym dziedziczeniem)
-    void      lost_power(double delta);  //!< An increase or decrease of the reputation with protection scope, and possible inheritance
+    Decision  check_partner(unsigned& x, unsigned& y); //!<  Choice of interaction partner.  (Wybór partnera interakcji)
+    Decision  answer_if_hooked(unsigned x, unsigned y); //!<  The answer to provocation. (Odpowiedź na zaczepkę)
+    void      change_reputation(double delta, HonorAgent& reason, int level=0); //!< Reputation increase or decrease with scope checking, optionally with families.
+                                                          //!< (Wzrost lub spadek reputacji z zabezpieczeniem zakresu, i ewentualnym dziedziczeniem)
+    void      lost_power(double delta);  //!< An increase or decrease of the reputation with protection scope, and possible inheritance.
                                          //!< (Spadek, zużycie siły z zabezpieczeniem zera)
     static
     bool      firstWin(HonorAgent& In,HonorAgent& Ho); //!< Determines whether the first or second agent was the winner in the confrontation (Ustala czy pierwszy czy drugi agent zwyciężył w konfrontacji)
 
-    // The main dynamics of the simulation
-    //*///////////////////////////////////
-    friend void InitAttributes(FLOAT HowMany);      //!< first part of initialization
-    friend void InitConnections(FLOAT HowManyFar);  //!< second part of initialization
-    friend void one_step(unsigned long& step_counter); //!< single simulation step
-    friend void power_recovery_step(); //!< step helper
-    friend void DeleteAllConnections(); //!< step helper
-    friend void Reset_action_memories(); //!< step helper
+    // The main dynamics of the simulation:
+    //*////////////////////////////////////
+    friend void InitAttributes(FLOAT HowMany);      //!< first part of initialization.
+    friend void InitConnections(FLOAT HowManyFar);  //!< second part of initialization.
+    friend void one_step(unsigned long& step_counter); //!< single simulation step.
+    friend void power_recovery_step(); //!< step helper.
+    friend void DeleteAllConnections(); //!< step helper.
+    friend void Reset_action_memories(); //!< step helper.
 
     // NOT USED! Support of family relationships (Obsługa stosunków rodzinnych)
     //*///////////////////////////////////////////////////////////////////////////
-    bool    IsParent(unsigned i); //!< Is this neighbor is the parent (Czy dany sąsiad jest rodzicem)
-    bool    IsChild(unsigned i); //!< Is this neighbor is a child (Czy dany sąsiad jest dzieckiem)
+    bool    IsParent(unsigned i); //!< Is this neighbor is the parent. (Czy dany sąsiad jest rodzicem)
+    bool    IsChild(unsigned i); //!< Is this neighbor is a child. (Czy dany sąsiad jest dzieckiem)
     bool    IsMyFamilyMember(HonorAgent& Other, HonorAgent*& Cappo, int MaxLevel=2); //!< Is another "belongs to the family". By the way, we set the "Godfather" (Czy inny "należy do rodziny". Przy okazji ustalamy "Ojca chrzestnego")
-    void    ChangeReputationThruFamily(double Delta); //!< Recursive change of the reputation of the agent down the best of 'Cappo' of the family (Rodzinna, rekurencyjna zmiana reputacji od agenta w dół najlepiej z "Cappo" rodziny)
+    void    ChangeReputationThruFamily(double Delta); //!< Recursive change of the reputation of the agent down the best of 'Cappo' of the family. (Rodzinna, rekurencyjna zmiana reputacji od agenta w dół najlepiej z "Cappo" rodziny)
     void    GodfatherDeath(); //!< It removes family links. (Usuwa powiązania rodzinne)
     friend void ConnectWithFamily(HonorAgent& Parent, HonorAgent& Ag);  //!<  It builds a family connections. (buduje powiązanie rodzinne)
 
     // Methods for statistics & visualization
     //*/////////////////////////////////////////////
-    void      MakeColor(HonorAgent& Parent);   //!< Tworzy kolor agenta jako wariacje koloru rodzica
-    ssh_rgb   GetColor() const {return Color;} //!< Individual color non modifiable from the outside (Nie modyfikowalny z zewnątrz indywidualny kolor)
-    ssh_rgb   GetFamColor() const {return FamColor;} //Family color
-    double    GetFeiReputation() const { return HonorFeiRep;}
-    wbrtm::wb_pchar  AgentCultureStr() const;// Returns textual representation of culture Agent (Zwraca tekstową reprezentacje kultury agenta)
-    unsigned  AgentCultureMask() const;// (Returns bitwise representations of culture of the agent (Zwraca maskę 3 bitów, pokazującą gdzie jest różne od 0. Aggr:1. bit, Honor:2.bit CallPoll:3.bit)
-    Decision  LastDecision(bool clean=false); // The recent decision of the MC step (Ostatnia decyzja z kroku MC)
-    friend void PrintHonorAgentInfo(std::ostream& o,const HonorAgent& H);//For inspection of the agent
+    void      MakeColor(HonorAgent& Parent);   //!< Creates an agent color as a variation of the parent color. (Tworzy kolor agenta jako wariacje koloru rodzica)
+    ssh_rgb   GetColor() const {return Color;} //!< Individual color non modifiable from the outside. (Nie modyfikowalny z zewnątrz indywidualny kolor)
+    ssh_rgb   GetFamColor() const {return FamColor;} //!< Family color.
+    double    GetFeiReputation() const { return HonorFeiRep;} //! Current reputation.
+    wbrtm::wb_pchar  AgentCultureStr() const; //!< Creates textual representation of culture Agent. (Zwraca tekstową reprezentacje kultury agenta)
+    unsigned  AgentCultureMask() const; //!< Creates bitwise representations of culture of the agent. (Zwraca maskę 3 bitów, pokazującą gdzie jest różne od 0. Aggr:1. bit, Honor:2.bit CallPoll:3.bit)
+    Decision  LastDecision(bool clean=false); //!< The recent decision of the MC step. (Ostatnia decyzja z kroku MC)
+    friend void PrintHonorAgentInfo(std::ostream& o,const HonorAgent& H); //!< For human friendly inspection of the agent.
 
  private:
-    const LinkTo* Neigh(unsigned i); //!< Raw access to link data
+    const LinkTo* Neigh(unsigned i); //!< Raw access to link data.
 
     wbrtm::wb_dynarray<LinkTo> Neighbourhood; //!< List of neighbors.
     unsigned                    HowManyNeigh; //!< Number of neighbors.
@@ -205,12 +210,13 @@ class HonorAgent
 
     double                       HonorFeiRep; //!< Reputation as a warrior (0..1). (Reputacja wojownika)
     ssh_rgb                            Color; //!< Unchangeable, or calculated by any of the functions for color coding.
-                                        //!< (Indywidualny i niezmienny lub obliczony którąś z funkcji kodujących kolor)
-    ssh_rgb                         FamColor; //!< Kolor rodziny, kopiowany od aktualnie sprawdzonego cappo.
+                                              //!< (Indywidualny i niezmienny lub obliczony którąś z funkcji kodujących kolor)
+    ssh_rgb                         FamColor; //!< Family color, copied from the last checked cappo.
+                                              //!< (Kolor rodziny, skopiowany od ostatnio sprawdzonego cappo.)
 }; // End of class Agent
 
-// Global simulation functions defined in HonorAgent.cpp
-//*//////////////////////////////////////////////////////////
+// Global simulation functions defined in "HonorAgent.cpp":
+//*////////////////////////////////////////////////////////
 void InitAttributes(FLOAT HowMany);
 void InitConnections(FLOAT HowManyFar);
 void DeleteAllConnections();
@@ -218,8 +224,9 @@ void one_step(unsigned long& step_counter);
 void power_recovery_step();
 void Reset_action_memories();
 
-// INLINE IMPLEMENTATIONS
-//*////////////////////////////
+// INLINE IMPLEMENTATIONS:
+//*///////////////////////
+
 inline
 bool HonorAgent::AreNeigh(int x1,int y1,int x2,int y2)
 {
@@ -233,8 +240,7 @@ bool HonorAgent::AreNeigh(int x1,int y1,int x2,int y2)
     return false; // not found
 }
 
-// Accessors for statistics & visualization
-//*///////////////////////////////////////////////////////////////////////////////
+// Accessors for statistics & visualization:
 
 inline void HonorAgent::Actions::Count(HonorAgent::Decision Deci)
 {
@@ -246,12 +252,11 @@ inline void HonorAgent::Actions::Count(HonorAgent::Decision Deci)
             case HonorAgent::HOOK:     this->HOOK++; break;
             case HonorAgent::FIGHT:    this->FIGHT++; break;
             case HonorAgent::CALL_AUTH: this->CALLAUTH++;break;
-            default:
-this->NOTHING++;     break;
+            default: this->NOTHING++;     break;
             }
 }
 
-/// Zwraca maskę 3 bitów, pokazującą gdzie jest różne od 0. Aggr:1. bit, Honor:2.bit CallPoll:3.bit
+// Zwraca maskę 3 bitów, pokazującą gdzie jest różne od 0. Aggr:1. bit, Honor:2.bit CallPoll:3.bit
 inline unsigned  HonorAgent::AgentCultureMask() const
 {
    unsigned Pom=0;
@@ -267,7 +272,7 @@ inline unsigned  HonorAgent::AgentCultureMask() const
    return Pom;
 }
 
-///Zwraca reprezentację tekstową kultury agenta.
+// Zwraca reprezentację tekstową kultury agenta.
 inline wbrtm::wb_pchar  HonorAgent::AgentCultureStr()  const
 {
    wbrtm::wb_pchar Pom(128);
@@ -288,13 +293,21 @@ inline wbrtm::wb_pchar  HonorAgent::AgentCultureStr()  const
 
 inline void HonorAgent::MakeColor(HonorAgent& Parent)
 {
+    static unsigned where=0;
+    where=(where+1)%3; //Losowosc i tak jest w kolejnosci powstawania nowych agentow.
     auto pco=Parent.GetColor();
-    pco.r+=1; pco.g+=1; pco.b+=1;
+    switch(where){
+    case 0:pco.r+=1; break;
+    case 1:pco.g+=1; break;
+    case 2:pco.b+=1; break;
+    default:assert("SHOULD NOT HAPPENEND!"==nullptr);break;
+    }
     Color=pco;
 }
 
-// Declarations of global variables & functions for statistics.
-//*////////////////////////////////////////////////////////////
+// Forward declarations of global variables & functions for statistics:
+//*////////////////////////////////////////////////////////////////////
+
 extern double MeanFeiReputation;
 extern double MeanCallPolice;
 extern double MeanPower;
@@ -310,28 +323,28 @@ extern HonorAgent::Actions CoutersForHonors;
 extern HonorAgent::Actions CoutersForCPolice;
 extern HonorAgent::Actions CoutersForRationals;
 
-/// Struct for statistical counters
-struct zliczacz
+/// Struct for statistical adders (kind of counters).
+struct Adder
 {
     double summ;
     unsigned N;
 
-    zliczacz():summ(0),N(0){}
+    Adder():summ(0),N(0){}
     void Reset(){summ=0;N=0;}
 
-    static void Reset(zliczacz t[],unsigned N)
+    static void Reset(Adder t[],unsigned N)
     {
         for(unsigned i=0;i<N;i++)
             t[i].Reset();
     }
 };
 
-extern zliczacz  MnStrenght[]; ///< Liczniki siły skrajnych typów agentów.
+extern Adder  MnStrenght[]; ///< Adders of the strengths of extreme types of agents. (Sumatory sił skrajnych typów agentów)
 
-// FOR FAMILIES VERSION - NOT USED FOR PAPER 2015
-//*//////////////////////////////////////////////////////////////////////
+// FOR FAMILIES VERSION - NOT USED FOR PAPER 2015:
+//*///////////////////////////////////////////////
 
-/// Czy dany sąsiad jest rodzicem.
+// Czy dany sąsiad jest rodzicem?
 inline bool    HonorAgent::IsParent(unsigned i)
 {
     if(i<this->NeighSize()
@@ -341,7 +354,7 @@ inline bool    HonorAgent::IsParent(unsigned i)
         return false;
 }
 
-/// Czy dany sąsiad jest dzieckiem.
+// Czy dany sąsiad jest dzieckiem?
 inline bool    HonorAgent::IsChild(unsigned i)
 {
     if(i<this->NeighSize()
@@ -351,7 +364,7 @@ inline bool    HonorAgent::IsChild(unsigned i)
         return false;
 }
 
-/// Usuwa powiązania.
+// Usuwa powiązania.
 inline void     HonorAgent::GodfatherDeath()
 {
     for(unsigned i=0;i<this->NeighSize();i++)
@@ -362,7 +375,7 @@ inline void     HonorAgent::GodfatherDeath()
             HonorAgent& Rodzic=World[Neighbourhood[i].Y][Neighbourhood[i].X];
             for(unsigned j=0;j<Rodzic.NeighSize();j++)
             if( this==&World[Rodzic.Neighbourhood[j].Y][Rodzic.Neighbourhood[j].X] ) //Siebie znalazł na liście...
-            {                                                                                                           assert(Rodzic.Neighbourhood[j].Child==1);
+            {                                                                 assert(Rodzic.Neighbourhood[j].Child==1);
                 Rodzic.Neighbourhood[j].Child=0;
                 //Rodzic.notifyChildDeath(j); //?
                 break;
@@ -384,7 +397,7 @@ inline void     HonorAgent::GodfatherDeath()
     }
 }
 
-/// anty GodfatherDeath(); - buduje powiązania
+// anty GodfatherDeath(); - buduje powiązania.
 inline void ConnectWithFamily(HonorAgent& Parent, HonorAgent& Ag)
 {
     for(unsigned i=0; i < Ag.NeighSize(); i++)

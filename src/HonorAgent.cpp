@@ -1,11 +1,10 @@
-﻿/// @file Agent for "Culture of Honor" - IMPLEMENTATIONS of METHODS
-/// @date 2025-12 (last modifications)
+﻿/// @file
+/// @brief Agent for "Culture of Honor" - IMPLEMENTATIONS of METHODS
+/// @date 2025-12-16 (last modifications)
 //*//////////////////////////////////////////////////////////////////////////////
 
 #define _USE_MATH_DEFINES //--> M_PI use. Needed by MSVC?
 #include <cmath>
-//#include <fstream>
-//#include <iomanip>
 #include <iostream>
 
 #include "symshell.h"
@@ -17,23 +16,23 @@
 using namespace wbrtm;
 using namespace std;
 
-/// HonorAgent class static fields (Pola statyczne klasy HonorAgent)
-//*/////////////////////////////////////////////////////////////////////////////////
-bool     HonorAgent::use_torus=false; ///< World topology (Topologia świata)
-unsigned HonorAgent::life_counter=0; ///< How many living agents (Ile żywych agentów)
+// HonorAgent class static fields (Pola statyczne klasy HonorAgent):
+//*/////////////////////////////////////////////////////////////////
+bool     HonorAgent::use_torus=false; ///< World topology. (Topologia świata)
+unsigned HonorAgent::life_counter=0;  ///< How many living agents. (Ile żywych agentów)
 
-wb_dynmatrix<HonorAgent> HonorAgent::World; ///< ŚWIAT AGENTÓW
+wb_dynmatrix<HonorAgent> HonorAgent::World; ///< WORLD OF AGENTS. (ŚWIAT AGENTÓW)
 
-/// Counters for statistics inside simulation procedures
-/// (Liczniki do statystyk wewnątrz procedur symulacji)
-//*/////////////////////////////////////////////////////////////////////////////////
-unsigned HonorRandomAttack=0;  ///< Honor Culture Random Attack Counter
-unsigned AgressRandomAttack=0; ///< Counter for random aggressive "culture" attacks
+// Counters for statistics inside simulation procedures:
+// (Liczniki do statystyk wewnątrz procedur symulacji)
+//*/////////////////////////////////////////////////////
+unsigned HonorRandomAttack=0;  ///< Honor Culture Random Attack Counter.
+unsigned AgressRandomAttack=0; ///< Counter for random aggressive "culture" attacks.
 
-// HANDLING AGENTS' WORLD INITIALIZATION (OBSŁUGA INICJALIZACJI ŚWIATA AGENTÓW)
-//*//////////////////////////////////////////////////////////////////////////////////
+// HANDLING AGENTS' WORLD INITIALIZATION (OBSŁUGA INICJALIZACJI ŚWIATA AGENTÓW):
+//*/////////////////////////////////////////////////////////////////////////////
 
-/// Random initialization of agents' attributes (Losowa inicjalizacja atrybutów agentów)
+/// Random initialization of agents' attributes. (Losowa inicjalizacja atrybutów agentów)
 void InitAttributes(FLOAT HowMany)
 {
     for(int y=0;y<SIDE;y++)
@@ -144,8 +143,8 @@ void InitConnections(FLOAT HowManyFar)
     }
 }
 
-//  HANDLING OF THE SIMULATION DYNAMICS (OBSŁUGA DYNAMIKI SYMULACJI)
-//*///////////////////////////////////////////////////////////////////////
+//  HANDLING OF THE SIMULATION DYNAMICS (OBSŁUGA DYNAMIKI SYMULACJI):
+//*//////////////////////////////////////////////////////////////////
 
 /// \brief
 /// The choice of an interaction partner by the agent who was given a random initiative, and the decision of what the agent with initiative should do.
@@ -158,7 +157,7 @@ void InitConnections(FLOAT HowManyFar)
 /// When the Aggressiveness attribute is less than 1, the attack may not always be performed,
 /// but we did not use this option in the article,
 /// as in the end of family/clan honor.
-/// \detailsPL
+/// PL:
 /// Zarówno Honorowi jak i agresywni mają spontaniczną agresję, która może być różnie prawdopodobna dla każdej z kultur.
 /// W obu przypadkach odgrywa ona rolę "challengu" - weryfikuje czy istniejąca reputacja jest prawdziwa.
 /// Bez tego ktoś "silny z natury" mógłby nigdy nie zostać sprowadzony do realiów.
@@ -218,7 +217,7 @@ HonorAgent::Decision  HonorAgent::check_partner(unsigned& x,unsigned& y)
 /// Agents of "DYGNITY" culture call the police with probability depending on how much they identify with this culture.
 /// But in the 2015 article, this identification is always 1, so the police are always called by them.
 /// Honor culture agents ALWAYS respond to the taunt (unless they are not 100% honorable, but we haven't tested that either).
-/// \detailsPL
+/// PL:
 /// To też zależy od kultury. Domyślną decyzją jest się poddać, i dotyczy zarówno "agresywnych" jak i racjonalnych.
 /// Co jest o tyle sensowne że atakujący ma i tak ZAWSZE wyższą reputację niż atakowany. Albo tak mu się przynajmniej wydaje.
 /// Jednakże:
@@ -263,7 +262,7 @@ HonorAgent::Decision  HonorAgent::answer_if_hooked(unsigned x,unsigned y)
 ///     * setting who is interacting with it and what kind of interaction it is.
 ///     * Check the hooked agent's response
 ///     * handling the results of the interaction.
-/// \DetailsPL
+/// PL:
 /// W pętli Monte Carlo odbywa się:
 ///     * Losowanie agenta aktywnego,
 ///     * ustalanie z kim wchodzi w interakcje i jakiego rodzaju to interakcja.
@@ -344,7 +343,7 @@ void one_step(unsigned long& step_counter)
                       }
                     break;
 
-           //Odpowiedzi na zaczepkę, które się nie powinny zdarzać
+           //Odpowiedzi na zaczepkę, które się nie powinny zdarzać:
            case HonorAgent::WITHDRAW:/* TU NIE MOżE BYĆ TUTAJ! */
            case HonorAgent::HOOK:     /* TU NIE MOżE BYĆ TUTAJ! */
            default:                  /* TU NIE MOżE BYĆ TUTAJ! */
@@ -361,7 +360,8 @@ void one_step(unsigned long& step_counter)
     step_counter++; // KONIEC KROKU M-C
 }
 
-/// (Statystyki przeżyciowe) Survival statistics
+// (Statystyki przeżyciowe) Survival statistics:
+//*/////////////////////////////////////////////
 unsigned      NumberOfKilled=0; ///< Counter of all deaths
 unsigned NumberOfKilledToday=0; ///< Death counter per step
 
@@ -382,7 +382,7 @@ unsigned NumberOfKilledToday=0; ///< Death counter per step
 /// If EXTERNAL_REPLACE is nonzero, a completely random agent may disappear and be replaced by a random agent.
 /// This is a way of ensuring that extinct strategies can come back and test in an environment where they were lost before.
 ///
-/// \detailsPL
+/// PL:
 /// "Post-krok" czyli odpoczynek po ciężkim dniu ;-)
 ///
 /// Jeśli agent nie przeżył, bo zabrakło mu siły, to jest podmieniany na jeden z kilku sposobów.
@@ -504,10 +504,10 @@ void power_recovery_step()
 }
 
 // CONNECTION CLEANING OPERATION. Especially important for repetitions.
-// (OBSŁUGA CZYSZCZENIA POŁĄCZEŃ. Ważna zwłaszcza przy powtórzeniach.)
-//*/////////////////////////////////////////////////////////////////////////////////////////
+// (OBSŁUGA CZYSZCZENIA POŁĄCZEŃ. Ważna zwłaszcza przy powtórzeniach.):
+//*////////////////////////////////////////////////////////////////////
 
-/// Delete connections to registered neighbors
+/// Delete connections to registered neighbors.
 /// (Usuwanie połączeń z zarejestrowanymi sąsiadami)
 void DeleteAllConnections()
 {
@@ -520,8 +520,8 @@ void DeleteAllConnections()
 }
 
 
-// Auxiliary agent methods and accessors (Pomocnicze metody i akcesory agentów)
-//*//////////////////////////////////////////////////////////////////////////////
+// Auxiliary agent methods and accessors (Pomocnicze metody i akcesory agentów):
+//*/////////////////////////////////////////////////////////////////////////////
 
 /// What was the last decision from MC step. For visualization and statistical purposes.
 /// (Jaka była ostatnia decyzja z kroku MC. Do celów wizualizacyjnych i statystycznych.)
@@ -565,7 +565,7 @@ unsigned HonorAgent::NeighSize()const
     return HowManyNeigh;
 }
 
-/// He forgets all added neighbors, which doesn't mean they forget him!
+/// He forgets all added neighbors, which doesn't mean they forget him.
 /// (Zapomina wszystkich dodanych sąsiadów, co nie znaczy, że oni zapominają jego)
 void HonorAgent::forgetAllNeigh()
 {
@@ -574,7 +574,7 @@ void HonorAgent::forgetAllNeigh()
 
 /// Reads the coordinates of the neighbor, if there is any at the index 'i'.
 /// (Czyta współrzędne sąsiada, o ile jest jakiś pod indeksem 'i')
-/// \return true/false was there a neighbor there? (czy był tam sąsiad?)
+/// \return true/false, if was there a neighbor. (t/f - czy był tam sąsiad?)
 bool HonorAgent::getNeigh(unsigned i,unsigned& x,unsigned& y) const
 {
    if(i<HowManyNeigh) //Jest taki
@@ -658,8 +658,8 @@ void HonorAgent::change_reputation(double delta, HonorAgent& reason, int level)/
     }
 }
 
-// FAMILY RELATIONS (not used in paper from 2015)
-//*/////////////////////////////////////////////////////////////////////////////////////////
+// FAMILY RELATIONS (not used in paper from 2015):
+//*///////////////////////////////////////////////
 
 /// It checks if this "Other" agent belong to this agent's "family".
 /// (Czy ten "Other" agent należy do "rodziny" danego agenta
