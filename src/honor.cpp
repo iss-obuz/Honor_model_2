@@ -57,7 +57,7 @@ enum  BATCH_MODES { NO_BAT=0,BAT_SELECTION=1,BAT_HONORvsCPOLL=2,BAT_HONORvsAGRR=
 const char*  batch_names[]={"NO_BAT","Bt_SEL","Bt_HvC","Bt_HvA"}; ///< for batch_names[batch_sele]
 const BATCH_MODES batch_vals[]={NO_BAT,BAT_SELECTION,BAT_HONORvsCPOLL,BAT_HONORvsAGRR}; ///< Names for OptEnumParam
 
-bool  batch_mode=false;       ///< Is the parameter space search operating mode?
+bool  batch_mode=true;       ///< Is the parameter space search operating mode?
                               ///< (Czy tryb pracy przeszukiwania przestrzeni parametrów?)
 
 unsigned population_growth=1; ///< How population growth? (SPOSOBY ROZMNAŻANIA)
@@ -140,7 +140,7 @@ int   WB_error_enter_before_clean=0; ///< Whether to give the operator a chance 
 /// * 0.25 - wprowadzenie statystyk z siły różnych grup (najwyższy decyl tylko)
 ///          i ich drukowania do pliku i na konsoli.
 ///          Uelastycznienie wydruku metryczki, żeby nadawała się i do pionu i do poziomu ...
-///          WPROWADZENIE TRYBU PRZESZUKIWANIA PRZESTRZENI PARAMETR�W
+///          WPROWADZENIE TRYBU PRZESZUKIWANIA PRZESTRZENI PARAMETROW
 ///          W tym ZAPISU BITMAP Z WYNIKAMI
 /// * 0.24 - wprowadzenie parametru RATIONALITY, bo użycie w pełni realistycznej oceny siły psuje selekcje
 ///          Zmiany kosmetyczne w nagłówku pliku wyjściowego
@@ -262,7 +262,7 @@ unsigned REPETITION_LIMIT=1;  ///< How many repetitions of the same experiment s
 unsigned RepetNum=1;          ///< Which is the next repeat? - DO NOT CHANGE MANUALLY!
                               ///< (Która to kolejna repetycja?  - NIE ZMIENIAĆ RĘCZNIE!)
 
-unsigned STOP_AFTER=180000;  ///< After what time the simulation ends automatically.
+unsigned STOP_AFTER=60000;   ///< After what time the simulation ends automatically.
                              ///< (Po jakim czasie symulacja kończy się automatycznie)
 unsigned STAT_AFTER=0;       ///< After what time to start counting the final statistics.
                              ///< (Po jakim czasie zacząć zliczać końcowe statystyki)
@@ -466,13 +466,13 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
             o<<"FLOAT"<<SEP<<"Default CALLP_POPUL  "<<SEP<<CALLER_POPU<<ENDL;
             o << "FLOAT" << SEP << "always give up" << SEP << (1.0 - abs(CALLER_POPU) - abs(BULLI_RATIO) - abs(HONOR_RATIO)) << ENDL;//not realy "loosers"
         }
-        o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(FAMILY_HONOR?"Yes":"No")<<ENDL;
+        o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(FAMILY_HONOR?"Yes":"No")<<SEP<<(RESTRICT_FH?"restricted":"for_all")<<ENDL;
     }
     else
     {
      o<<"FLOAT"<<SEP<<"POLICE_EFFIC"<<SEP<<POLICE_EFFIC<<ENDL;    //Z jakim prawdopodobieństwem wezwana policja obroni agenta
      o<<"FLOAT"<<SEP<<"USE_SELECTION"<<SEP<<USED_SELECTION<<ENDL; //Jak bardzo przegrani umierają (0 - brak selekcji w ogóle)
-     o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(FAMILY_HONOR?"Yes":"No")<<ENDL;
+     o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(FAMILY_HONOR?"Yes":"No")<<SEP<<(RESTRICT_FH?"restricted":"for_all")<<ENDL;
 
      if(BULLI_RATIO >= 1) //... CO TO?         TODO?
      {                                                                          assert("Dead code called?"==NULL);
@@ -499,7 +499,7 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
 
     o<<"REPET"<<SEP<<"STOPAFER"<<SEP<<"VISFREQ";
     if(batch_mode)
-        o<<SEP<<"STATSTEP"<<SEP<<"PREVSTEP"<<SEP<<"STATSTART";o<<ENDL;//Tak ma by� to ENDL!
+        o<<SEP<<"STATSTEP"<<SEP<<"PREVSTEP"<<SEP<<"STATSTART";o<<ENDL;//Tak ma byl to ENDL!
     o<<REPETITION_LIMIT<<SEP<<STOP_AFTER<<SEP<<EveryStep;
     if(batch_mode)
         o<<SEP<<(max(EveryStep,100u))<<SEP<<PREVSTEP<<SEP<<STAT_AFTER;o<<ENDL<<ENDL;
