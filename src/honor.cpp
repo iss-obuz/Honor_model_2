@@ -34,7 +34,7 @@ using namespace wbrtm;
  * Short name of the model.
  */
 const char* MODEL_NAME="Family honor";
-const char* VER_NUMBER="1.02 (2025)"
+const char* VER_NUMBER="1.03 (2025)"
 
 #ifdef TESTING_RULE_LITERALS
 " RulesTestDiv"
