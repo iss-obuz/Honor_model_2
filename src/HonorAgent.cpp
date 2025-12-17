@@ -1,6 +1,6 @@
 ﻿/// @file
 /// @brief Agent for "Culture of Honor" - IMPLEMENTATIONS of METHODS
-/// @date 2025-12-16 (last modifications)
+/// @date 2025-12-17 (last modifications)
 //*//////////////////////////////////////////////////////////////////////////////
 
 #define _USE_MATH_DEFINES //--> M_PI use. Needed by MSVC?
@@ -49,6 +49,7 @@ void HonorAgent::RandomReset(float POW_LIMIT)
         this->HisLifeTime=0;
 
         this->Color=RGB(25+RANDOM(220),25+RANDOM(220),25+RANDOM(220));
+        this->FamColor=RGB(0,0,0);
 
         if(POW_LIMIT > 0)
             PowLimit=POW_LIMIT; //Ustawia jaką siłę może osiągnąć maksymalnie, gdy nie traci
@@ -416,22 +417,23 @@ void power_recovery_step()
             }
 
         if(USED_SELECTION>=0 //selekcja 0 oznacza śmierć tylko od MORTALITY i EXTERNAL_REPLACE
-        && Ag.Power<USED_SELECTION)  //Siła spadła poniżej progu przeżycia.
+        && Ag.Power<USED_SELECTION)  //Siła jest poniżej progu przeżycia.
         {
            if(population_growth==0) //Tryb z prawdopodobieństwami inicjalnymi
            {                                                                                assert(FAMILY_HONOR==false);
              Ag.RandomReset(); //Po prostu w jego miejsce losowy agent
+                               //KOLOR POZSTAJE LOSOWY A KOLOR RODZINNY PUSTY.
              NumberOfKilled++;
              NumberOfKilledToday++;
            }
            else
            if(population_growth==1) //Tryb lokalny. Z losowym sąsiadem jako rodzicem
            {
-                unsigned ktory=RANDOM(Ag.NeighSize()),xx,yy;
-                bool pom=Ag.getNeigh(ktory,xx,yy);
+                unsigned ktory=RANDOM(Ag.NeighSize()),xx=0xffff,yy=0xffff; // xx i yy zostana wypelnione zaraz, chyba ze nie...
+                bool pom=Ag.getNeigh(ktory,xx,yy);                assert(pom); //losuje z listy sasiadow, wiec zawsze cos tam powinno byc!
                 HonorAgent& Rodzic=HonorAgent::World[yy][xx];
 
-                if(Rodzic.Power>0) //Tylko wtedy może się rodzić! NEW TODO Check  - JAK NIE TO ROZLICZENIE NA PÓŹNIEJ?
+                if(Rodzic.Power>0) //Tylko wtedy może się rodzić gdy jest i ma energie! NEW TODO Check  - JAK NIE TO ROZLICZENIE NA PÓŹNIEJ?
                 {
                      if(FAMILY_HONOR) //Jeżeli są stosunki rodzinne to śmierć ma różne konsekwencje społeczne
                          Ag.GodfatherDeath();
@@ -455,8 +457,10 @@ void power_recovery_step()
                      {
                         Ag.HonorFeiRep=Rodzic.HonorFeiRep; //Ma reputacje rodzica, bo on go chroni
                         ConnectWithFamily(Rodzic, Ag);  //anty GodfatherDeath();
-                        Ag.MakeColor(Rodzic);
                      }
+
+                     Ag.MakeColor(Rodzic); //Kolor zmodyfikowanym kolorem rodzica.
+                     Ag.FamColor=Rodzic.Color; //A kolor rodzinny wziety od rodzica. Moze sie zmienic przy interakcjach sterowanych przez FAMILY_HONOR
 
                      // Aktualizacja liczników
                      NumberOfKilled++;
@@ -474,6 +478,8 @@ void power_recovery_step()
                  Ag.Agres=Drugi.Agres;
                  Ag.Honor=Drugi.Honor;
                  Ag.CallPolice=Drugi.CallPolice;
+                 Ag.MakeColor(Drugi);  //Kolor zmodyfikowanym kolorem wzorca.
+                 Ag.FamColor=Drugi.Color;
                  NumberOfKilled++;
                  NumberOfKilledToday++;
                 }
@@ -635,15 +641,17 @@ void HonorAgent::change_reputation(double delta, HonorAgent& reason, int level)/
      {
         return; //nothing to do
      }
-#endif
+#endif //FAMILY_HONOR
     HonorAgent* Cappo=NULL; //Przy okazji sprawdzenia, czy ktoś jest w tej rodzinie, ustalamy "Ojca chrzestnego".
-    if(&reason != NULL && FAMILY_HONOR && !IsMyFamilyMember(reason, Cappo) )//Jeżeli działa honor rodzinny to ...
+    if( &reason != NULL
+    && IsUsingFamilyHonor() // The use of family honor depends on the parameters and optional properties of the agent.
+    && !IsMyFamilyMember(reason, Cappo) )//Jeżeli działa honor rodzinny to ...
     {
         if(Cappo==NULL) //Nie ma żyjącego ojca. Tu ślad się urywa.
         {
             Cappo = this;
         }
-        this->FamColor=Cappo->Color;
+        this->FamColor=Cappo->Color; //Jak mamy jeszcze jakiegos cappo to przyjmujemy jego kolor.
         Cappo->ChangeReputationThruFamily(delta); //Ale może mieć dzieci...
     }
     else
@@ -653,7 +661,7 @@ void HonorAgent::change_reputation(double delta, HonorAgent& reason, int level)/
     }
     else       //Spadek
     {
-        HonorFeiRep-=HonorFeiRep*fabs(delta);                                               assert(0 <= HonorFeiRep);
+        HonorFeiRep-=HonorFeiRep*fabs(delta);                                                  assert(0 <= HonorFeiRep);
         /* Spr.-> */                                                                             assert(HonorFeiRep<=1);
     }
 }
@@ -664,7 +672,7 @@ void HonorAgent::change_reputation(double delta, HonorAgent& reason, int level)/
 /// It checks if this "Other" agent belong to this agent's "family".
 /// (Czy ten "Other" agent należy do "rodziny" danego agenta
 /// Przy okazji sprawdzenia ustalamy "Ojca chrzestnego" (Cappo) na później)
-bool HonorAgent::IsMyFamilyMember(HonorAgent& Other, HonorAgent*& Cappo, int MaxLevel) //=2
+bool HonorAgent::IsMyFamilyMember(HonorAgent& Other, HonorAgent*& Cappo, int MaxLevel/*=2*/)
 {
     if(MaxLevel>0) //Jak jeszcze nie szczyt zadanej hierarchii, to szuka ojca
         for(unsigned i=0;i<NeighSize();i++)

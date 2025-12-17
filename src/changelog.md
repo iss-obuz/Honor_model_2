@@ -1,5 +1,12 @@
+# @date 2025-12-17 (last modification)
 # LOG CHANGE
+
+## NEXT PAPER?
+*  1.03 : Family honor can be restricted to honorable agents via RESTRICT_FH
+*  1.02 : Family connections visualization
 *  1.01 : Family honor reactivation
+
+## UP TO THE PAPER
 *  1.00 : cleaned version for final publication on GitHub
 *  0.99 : version to be published on OSF
 *  0.45 : version with the inheritance of the maximum strength from the parent

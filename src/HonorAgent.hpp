@@ -1,6 +1,6 @@
 ﻿/// @file
 /// @brief Agent for "culture of honor" model - declarations
-/// @date 2025-12-16 (last modifications)
+/// @date 2025-12-17 (last modifications)
 //*//////////////////////////////////////////////////////////////////////////////
 
 //#define TESTING_RULE_LITERALS 1     ///< VERY SLOW!!!
@@ -59,9 +59,10 @@ extern FLOAT    HONOR_AGGRESSION; ///< Default=0.0250; Random aggression of HONO
 
 
 extern bool     FAMILY_HONOR; ///< Switch for sharimg reputation with family. (Czy reputacja przenosi się na członków rodziny?)
+extern bool     RESTRICT_FH;  ///< Limits family honor to honorable agents only. (Ogranicza honor rodzinny tylko do honorowych agentow.)
 
 #ifdef TESTING_RULE_LITERALS
-extern FLOAT    TEST_DIVIDER;//=1.0; ONLY FOR ADVANCED ROBUSTNESS STUDIES. (Służy do modyfikacji stałych liczbowych używanych w regułach reakcji agenta)
+extern FLOAT    TEST_DIVIDER; //=1.0; ONLY FOR ADVANCED ROBUSTNESS STUDIES. (Służy do modyfikacji stałych liczbowych używanych w regułach reakcji agenta)
 #else
 const  FLOAT    TEST_DIVIDER=1;
 #endif
@@ -184,7 +185,8 @@ class HonorAgent
     // NOT USED! Support of family relationships (Obsługa stosunków rodzinnych)
     //*///////////////////////////////////////////////////////////////////////////
     bool    IsParent(unsigned i); //!< Is this neighbor is the parent. (Czy dany sąsiad jest rodzicem)
-    bool    IsChild(unsigned i); //!< Is this neighbor is a child. (Czy dany sąsiad jest dzieckiem)
+    bool    IsChild(unsigned i);  //!< Is this neighbor is a child. (Czy dany sąsiad jest dzieckiem)
+    bool    IsUsingFamilyHonor(); //!< The use of family honor depends on the parameters and optional properties of the agent. (Uzycie honoru rodzinnego zalezy od parametrow i opcjonalnie wlasciwosci agenta.)
     bool    IsMyFamilyMember(HonorAgent& Other, HonorAgent*& Cappo, int MaxLevel=2); //!< Is another "belongs to the family". By the way, we set the "Godfather" (Czy inny "należy do rodziny". Przy okazji ustalamy "Ojca chrzestnego")
     void    ChangeReputationThruFamily(double Delta); //!< Recursive change of the reputation of the agent down the best of 'Cappo' of the family. (Rodzinna, rekurencyjna zmiana reputacji od agenta w dół najlepiej z "Cappo" rodziny)
     void    GodfatherDeath(); //!< It removes family links. (Usuwa powiązania rodzinne)
@@ -363,6 +365,18 @@ inline bool    HonorAgent::IsChild(unsigned i)
     else
         return false;
 }
+
+// The use of family honor depends on the parameters and optional properties of the agent.
+inline bool    HonorAgent::IsUsingFamilyHonor()
+{
+    if(!FAMILY_HONOR) return false; //Wcale nie ma honoru rodzinnego
+    if(!RESTRICT_FH) return true; //Honor rodzinny nie jest ograniczony - kazdy go uzywa
+    if(this->Honor>0.9999) // Tylko naprawde honorowi uzywaja honor rodzinny
+        return true;
+    else
+        return false;
+}
+
 
 // Usuwa powiązania.
 inline void     HonorAgent::GodfatherDeath()

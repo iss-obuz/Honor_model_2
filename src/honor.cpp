@@ -4,7 +4,7 @@
 /// \details In paper "The Evolutionary Basis of Honor Cultures
 ///          Andrzej Nowak, Michele Gelfand, Wojciech Borkowski
 /// \author Wojciech Borkowski is responsible for all this code.
-/// @date 2025-12-02 (last modification)
+/// @date 2025-12-17 (last modification)
 //*//////////////////////////////////////////////////////////////////////////////
 
 //#include <process.h> //nie ma w GCC?
@@ -67,7 +67,7 @@ unsigned population_growth=1; ///< How population growth? (SPOSOBY ROZMNAŻANIA)
                               ///<  3 - as global distribution (3 - globalne, losowy agent z całości)
 
 /// Variable expected by SymShell.
-int   WB_error_enter_before_clean=1; ///< Whether to give the operator a chance to read the end messages?
+int   WB_error_enter_before_clean=0; ///< Whether to give the operator a chance to read the end messages?
                                      ///< (Czy dać szanse operatorowi na poczytanie komunikatów końcowych)
 
 //extern "C"                ///< Bo X11 z jakiegoś powodu nie chce tej zmiennej jako static
@@ -78,6 +78,7 @@ int   WB_error_enter_before_clean=1; ///< Whether to give the operator a chance 
 /// honor POLICEEF=0 BULLYPR=.25 HONORPR=.11 CALLPRP=.22 MAXSTEP=10000 VISSTEP=10 GROWMODE=1 REPETITIONS=10
 
 /// LOG ZMIAN (for english version see changelog.md)
+/// * 1.03    - honor rodzinny moze byc ograniczony do honorowych agentow przez RESTRICT_FH
 /// * 1.02    - wizualizacja powiazan rodzinnych
 /// * 1.01    - przywrócenie honoru rodzinnego. Chyba jakoś działa, ale do posprawdzania.
 /// * 1.00    - oczyszczona wersja do ostatecznej publikacji na GitHub'ie
@@ -175,11 +176,15 @@ FLOAT    BULLI_AGGRESSION=0.01250;
 /// (Jakie jest prawdopodobieństwo przypadkowej zamiany na zupełnie innego)
 FLOAT    EXTERNAL_REPLACE=0.0001;
 
-///< Does reputation transfer to family members. (Czy reputacja przenosi się na członków rodziny)
-///< \note
-///< NOT USED IN THE 2015 ARTICLE. (NIE UŻYWANE W ARTYKULE z 2015)
-///< Will be used in new paper.
+/// Does reputation transfer to family members. (Czy reputacja przenosi się na członków rodziny)
+/// \note
+/// NOT USED IN THE 2015 ARTICLE. (NIE UŻYWANE W ARTYKULE z 2015)
+/// Will be used in new paper 2026
 bool     FAMILY_HONOR=true;
+
+/// Limits family honor to honorable agents only. (Ogranicza honor rodzinny tylko do honorowych agentow.)
+/// For new papaper 2026
+bool     RESTRICT_FH=true;
 
 #ifdef TESTING_RULE_LITERALS
 FLOAT     TEST_DIVIDER=1.0; ///< Służy do modyfikacji stałych liczbowych używanych w regułach reakcji agenta.
@@ -323,7 +328,8 @@ new OptionalParameter<FLOAT>(BULLI_AGGRESSION, 0, 0.15, "AGRAGRES", "Probability
 new OptionalParameter<unsigned>(population_growth,0,3,"GROWMODE","How population growth?\n\t  0-as initial distribution, 1-local distribution, 3-global distribution\n\t "),
 new OptionalParameter<bool>(HonorAgent::use_torus, false, true, "TORUS", "Is the world topology toroidal or not"), //Czy geometria torusa czy wyspy z brzegami
 new OptionalParameter<bool>(Inherit_MAX_POWER,false,true,"INHERITPOWER","Do new agents inherit (with noise) max power from its parent?"),
-new OptionalParameter<bool>(FAMILY_HONOR,false,true,"FAMILIES", "Is a family relationship taken into account in reputation changes?"),//Czy uzywamy mechanizmu rodzinnego zmian reputacji
+new OptionalParameter<bool>(FAMILY_HONOR,false,true,"FAMILIES", "Is a family relationship taken into account in reputation changes?"), //Czy uzywamy mechanizmu rodzinnego zmian reputacji
+new OptionalParameter<bool>(RESTRICT_FH,false,true,"RESTR_FAMI", "Limits family honor to honorable agents only."),
 #ifdef TESTING_RULE_LITERALS
 new OptionalParameter<FLOAT>(TEST_DIVIDER,1.0/3.0,1.0,"TEST_DIVIDER","For testing real meaning of arbitrary values used in rules"),
 #endif
@@ -898,6 +904,7 @@ void Write_tables(ostream& o,const char* Name1,wb_dynmatrix<FLOAT>& Tab1,
 
     //NAGŁÓWKI TABEL
     switch(batch_sele){ //Czy tryb przeszukiwania szuka po proporcjach, czy po sile selekcji?
+    case NO_BAT: cerr<<"\n\aNO_BAT mode is not implemented!\n"<< endl; exit(-112); break;
     case BAT_HONORvsCPOLL:
     case BAT_SELECTION:X=0;
     for(FLOAT efficiency=POLICE_EFFIC_MIN; efficiency <= POLICE_EFFIC_MAX; efficiency+=POLICE_EFFIC_STEP,X++)
@@ -931,6 +938,7 @@ void Write_tables(ostream& o,const char* Name1,wb_dynmatrix<FLOAT>& Tab1,
     //ROW HEADERS and CONTENTS OF TABLES (NAGŁÓWKI WIERSZY i ZAWARTOŚĆ TABEL)
     Y=0;
     switch(batch_sele){ //Czy tryb przeszukiwania szuka po proporcjach, czy po sile selekcji?
+        case NO_BAT: cerr<<"\n\aNO_BAT mode is not implemented!\n"<< endl; exit(-112); break;
         case BAT_HONORvsCPOLL:
             for(FLOAT prop=PROPORTION_MIN;prop<=PROPORTION_MAX;prop+=PROPORTION_STEP,Y++)
             {
@@ -986,7 +994,7 @@ void Write_tables(ostream& o,const char* Name1,wb_dynmatrix<FLOAT>& Tab1,
                 o<<endl;
             }
                 break;//=3    walk_honor_vs_agrr();
-        case NO_BAT: default: cerr<<"\n\aInvalid batch mode!\n"<< endl; exit(-111);
+        default: cerr<<"\n\aInvalid batch mode!\n"<< endl; exit(-111); break;
         }
 
         // Dwie ostatnie nazwy pod spodem
@@ -1113,12 +1121,18 @@ void walk_params_prop()
                             }
                             else
                             if (znak == '\n')
+                            {
                                 if(BatchPlotPower)
+                                {
                                     PlotTables("MnPowOfAg",MeanPowerOfAgres,"MnPowOfHonor",MeanPowerOfHonor,
                                     "MnPowOfPCall",MeanPowerOfPCall,"MnPowOfOther",MeanPowerOfOther,Batch_true_color);
+                                }
                                 else
+                                {
                                     PlotTables("MnPropOfAg",MeanPropOfAgres,"MnPropOfHonor",MeanPropOfHonor,
                                     "MnPropOfPCall",MeanPropOfPCall,"MnPropOfOther",MeanPropOfOther,Batch_true_color);
+                                }
+                            }
                         }
                 }
              } // KONIEC PĘTLI POJEDYNCZEJ SYMULACJI
@@ -1301,9 +1315,12 @@ void walk_params_sele()
                             }
                             else
                             if (znak == '\n')
+                            {
                                 if(BatchPlotPower)
+                                {
                                     PlotTables("MnPowOfAg",MeanPowerOfAgres,"MnPowOfHonor",MeanPowerOfHonor,
                                     "MnPowOfPCall",MeanPowerOfPCall,"MnPowOfOther",MeanPowerOfOther,Batch_true_color);
+                                }
                                 else
                                 {
                                     //PlotTables("MnPropOfAg",MeanPropOfAgres,"MnPropOfHonor",MeanPropOfHonor,
@@ -1311,6 +1328,7 @@ void walk_params_sele()
                                     PlotTables("PropMnDiffOfAg",PropMnDiffOfAgres,"PropMnDiffOfHonor",PropMnDiffOfHonor,
                                             "PropMnDiffOfPCall",PropMnDiffOfPCall,"PropMnDiffOfOther",PropMnDiffOfOther,Batch_true_color);
                                 }
+                            }
                         }
                 }
              } // KONIEC PĘTLI SYMULACJI
@@ -1498,12 +1516,18 @@ void walk_honor_vs_agrr()
                             }
                             else
                             if (znak == '\n')
+                            {
                                 if(BatchPlotPower)
+                                {
                                     PlotTables("MnPowOfAg",MeanPowerOfAgres,"MnPowOfHonor",MeanPowerOfHonor,
                                     "MnPowOfPCall",MeanPowerOfPCall,"MnPowOfOther",MeanPowerOfOther,Batch_true_color);
+                                }
                                 else
+                                {
                                     PlotTables("MnPropOfAg",MeanPropOfAgres,"MnPropOfHonor",MeanPropOfHonor,
                                     "MnPropOfPCall",MeanPropOfPCall,"MnPropOfOther",MeanPropOfOther,Batch_true_color);
+                                }
+                            }
                         }
                 }
              } // KONIEC PĘTLI SYMULACJI
