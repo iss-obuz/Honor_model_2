@@ -268,7 +268,7 @@ unsigned STAT_AFTER=0;       ///< After what time to start counting the final st
                              ///< (Po jakim czasie zacząć zliczać końcowe statystyki)
 unsigned PREVSTEP=80;        ///< How many steps before the main statistic to compute the previous state for a variation.
                              ///< (Ile kroków przed główną statystyką wyliczać poprzedni stan dla wariacji)
-unsigned EveryStep=50;       ///< The frequency of visualization and logging. Negative means auto-increment mode.
+unsigned EveryStep=50;      ///< The frequency of visualization and logging. Negative means auto-increment mode.
                              ///< (Częstotliwość wizualizacji i zapisu do logu. Ujemne oznacza tryb automatycznej inkrementacji)
 unsigned DumpStep=10000;     ///< Agent world state dump rate.
                              ///< Częstość zrzutów stanu całego świata agentów.
