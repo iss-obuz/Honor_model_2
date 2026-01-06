@@ -54,18 +54,19 @@ add_subdirectory( ${SYMSHELL} ${SYMSHELL} )
 
 include_directories( ${SYMSHELL} )
 
-if(WINDOWS) # only for WINDOWS
-    add_executable( honor2
+if(true)
+    add_executable( honor2svg
+                    src/HonorAgent.hpp
                     src/HonorAgent.cpp
                     src/honor.cpp
-                    src/symshmsc.rc
-                    src/symshwin.ico
-                   )
-    target_link_libraries( honor2
-         "-L${SYMSHELL}"
-         wbsyshLight
-         )
-endif(WINDOWS)
+            ../../public/SymShellLight/asserted.h
+    )
+    target_link_libraries( honor2svg
+                    "-L${SYMSHELL}"
+                    wbsyshLightSVG
+                    rt
+                    )
+endif()
 
 if(X11) # only for X11 LIB
     add_definitions( -DHAVE_X11 -DUSE_X11 )
@@ -75,12 +76,26 @@ if(X11) # only for X11 LIB
                     src/honor.cpp
                    )
     target_link_libraries( honor2
-         "-L${SYMSHELL}"
-         wbsyshLight
-         X11 Xpm
-         rt
-         )
-endif(X11)
+                    "-L${SYMSHELL}"
+                    wbsyshLight
+                    X11 Xpm
+                    rt
+                    )
+endif()
+
+if(WINDOWS) # only for WINDOWS
+    add_executable( honor2
+                    src/HonorAgent.cpp
+                    src/honor.cpp
+                    src/symshmsc.rc
+                    src/symshwin.ico
+            ../../public/SymShellLight/asserted.h
+    )
+    target_link_libraries( honor2
+                    "-L${SYMSHELL}"
+                    wbsyshLight
+                    )
+endif(WINDOWS)
 
 if(WITHTOOLS)
    add_subdirectory( mapGen/ )

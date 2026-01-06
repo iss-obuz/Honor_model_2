@@ -4,11 +4,13 @@
 /// \details In the paper "The Evolutionary Basis of Honor Cultures"
 ///          Andrzej Nowak, Michele Gelfand, Wojciech Borkowski
 /// \author Wojciech Borkowski is responsible for all this code.
-/// @date 2025-12-17 (last modification)
+/// @date 2026-01-06 (last modification)
 //*//////////////////////////////////////////////////////////////////////////////
 
 //#include <process.h> //nie ma w GCC?
+#ifdef WINDOWS
 #define _USE_MATH_DEFINES //bo M_PI
+#endif
 
 #include <cmath>
 #include <iostream>
@@ -23,9 +25,10 @@
 #include "optParam.hpp"
 
 #include "HonorAgent.hpp"
+#include "asserted.h"
 
-#include "symshell.h"
-#include "sshutils.hpp"
+//#include "symshell.h"
+//#include "sshutils.hpp"
 
 using namespace std;
 using namespace wbrtm;
@@ -34,7 +37,7 @@ using namespace wbrtm;
  * Short name of the model.
  */
 const char* MODEL_NAME="Family honor";
-const char* VER_NUMBER="1.03 (2025)"
+const char* VER_NUMBER="1.04 (2026)"
 
 #ifdef TESTING_RULE_LITERALS
 " RulesTestDiv"
@@ -57,10 +60,12 @@ enum  BATCH_MODES { NO_BAT=0,BAT_SELECTION=1,BAT_HONORvsCPOLL=2,BAT_HONORvsAGRR=
 const char*  batch_names[]={"NO_BAT","Bt_SEL","Bt_HvC","Bt_HvA"}; ///< for batch_names[batch_sele]
 const BATCH_MODES batch_vals[]={NO_BAT,BAT_SELECTION,BAT_HONORvsCPOLL,BAT_HONORvsAGRR}; ///< Names for OptEnumParam
 
-bool  batch_mode=true;        ///< Is the parameter space search operating mode?
+bool  WAIT_AT_END=false;      ///< Czy program będzie aktywnie czekać na dyrektywy po zakończeniu symulacji.
+
+bool  batch_mode=false;       ///< Is the parameter space search operating mode?
                               ///< (Czy tryb pracy przeszukiwania przestrzeni parametrów?)
 
-unsigned population_growth=1; ///< How population growth? (SPOSOBY ROZMNAŻANIA)
+unsigned population_growth=3; ///< How population growth? (SPOSOBY ROZMNAŻANIA)
                               ///<  0 - as initial distribution, (0 - wg. inicjalnych proporcji)
                               ///<  1 - as local distribution, (1 - lokalne rozmazanie losowe sąsiad)
                               ///<  2 - NOT IMPLEMENTED         (2 - lokalne rozmazanie proporcjonalne do siły)
@@ -70,14 +75,15 @@ unsigned population_growth=1; ///< How population growth? (SPOSOBY ROZMNAŻANIA)
 int   WB_error_enter_before_clean=0; ///< Whether to give the operator a chance to read the end messages?
                                      ///< (Czy dać szanse operatorowi na poczytanie komunikatów końcowych)
 
-//extern "C"                ///< Bo X11 z jakiegoś powodu nie chce tej zmiennej jako static
-//int   basic_line_width=1; ///< W sumie nie wiadomo po co to???
+//extern "C"                  ///< Bo X11 z jakiegoś powodu nie chce tej zmiennej jako static
+//int   basic_line_width = 1; ///< W sumie nie wiadomo po co to???
 
 /// USAGE: Example parameter list:
 /// (UŻYCIE: Przykładowa lista parametrów)
 /// honor POLICEEF=0 BULLYPR=.25 HONORPR=.11 CALLPRP=.22 MAXSTEP=10000 VISSTEP=10 GROWMODE=1 REPETITIONS=10
 
 /// LOG ZMIAN (for english version see changelog.md)
+/// * 1.04    - poprawki kosmetyczne kodu
 /// * 1.03    - honor rodzinny może być ograniczony do honorowych agentów przez RESTRICT_FH
 /// * 1.02    - wizualizacja powiązań rodzinnych
 /// * 1.01    - przywrócenie honoru rodzinnego. Chyba jakoś działa, ale do posprawdzania.
@@ -277,9 +283,9 @@ unsigned DumpStep=10000;     ///< Agent world state dump rate.
 // (Parametry techniczne sterujące wizualizacją i wydrukami)
 //*/////////////////////////////////////////////////////////////
 
-unsigned VSIZ=9; ///< The maximum size of the agent side in a composite visualization
+int VSIZ=9; ///< The maximum size of the agent side in a composite visualization
                  ///< (Maksymalny rozmiar boku agenta w wizualizacji kompozytowej)
-unsigned SSIZ=2; ///<Agent side in complementary (small) visualization
+int SSIZ=2; ///<Agent side in complementary (small) visualization
                  ///< Bok agenta w wizualizacji uzupełniającej (małej)
 
 bool  ConsoleLog=false;    ///< Whether it uses console event logging. Important for the start, then it can be switched.
@@ -321,9 +327,9 @@ new ParameterLabel("PARAMETERS FOR SINGLE SIMULATION"),
 new OptionalParameter<long>(RandSeed,1,0x01FFFFFF,"RANDSEED","Use, if you want the same simulation many times"),//Zasiewanie liczby losowej
 new OptionalParameter<FLOAT>(MORTALITY,0,0.05,"MORTALITY","Ratio of agents randomly killed each step by other factors"), //Jakie jest prawdopodobieństwo przypadkowej śmierci
 new OptionalParameter<FLOAT>(EXTERNAL_REPLACE,0,0.05,"EXTREPLACE","Ratio of agents randomly replaced by random newcomers every step"), //Wymiana imigracyjno/emigracyjna MAZA MA BYC!
-new OptionalParameter<FLOAT>(USED_SELECTION,0,0.75,"SELECTION","Minimal level of strength required to survive"),//0.10; //Jak bardzo przegrani umieraja (0 - brak selekcji w ogole)
-new OptionalParameter<FLOAT>(HONOR_AGGRESSION,0,0.15,"HONAGRES","Probability of random aggression of HONOR agents"),//0.015;//Bazowy poziom agresji zalezny od honoru
-new OptionalParameter<FLOAT>(BULLI_AGGRESSION, 0, 0.15, "AGRAGRES", "Probability of random aggression of AGGRESSIVE agents"),//0.015;//Bazowy poziom agresji zalezny od honoru
+new OptionalParameter<FLOAT>(USED_SELECTION,0,0.75,"SELECTION","Minimal level of strength required to survive"), //Jak bardzo przegrani umieraja (0 - brak selekcji w ogole)
+new OptionalParameter<FLOAT>(HONOR_AGGRESSION,0,0.15,"HONAGRES","Probability of random aggression of HONOR agents"), //Bazowy poziom agresji zalezny od honoru
+new OptionalParameter<FLOAT>(BULLI_AGGRESSION, 0, 0.15, "AGRAGRES", "Probability of random aggression of AGGRESSIVE agents"), //Bazowy poziom agresji zalezny od honoru
 #ifndef PUBLIC_2015
 new OptionalParameter<unsigned>(population_growth,0,3,"GROWMODE","How population growth?\n\t  0-as initial distribution, 1-local distribution, 3-global distribution\n\t "),
 new OptionalParameter<bool>(HonorAgent::use_torus, false, true, "TORUS", "Is the world topology toroidal or not"), //Czy geometria torusa czy wyspy z brzegami
@@ -336,11 +342,11 @@ new OptionalParameter<FLOAT>(TEST_DIVIDER,1.0/3.0,1.0,"TEST_DIVIDER","For testin
 #endif
 //FLOAT    RECOVERY_POWER=0.005; //Jaką część siły odzyskuje w kroku czasu.
 new OptionalParameter<FLOAT>(RECOVERY_POWER,0.00001,0.5,"RECPOWER","How fast agent recovery for fight damage"),
-new OptionalParameter<FLOAT>(POLICE_EFFIC,0,1,"POLICEEF","Probability of efficient police intervention"),//=0.50;//0.650;//0.950; //Z jakim prawdopodobie�stwem wezwana policja obroni agenta
-new OptionalParameter<FLOAT>(BULLI_RATIO, 0, 1, "BULLYPR", "Initial probability to born as bully agent"),//=-0.25;//0.2;//0.100;//Albo zero-jedynkowo. Jak 1 to decyduje rozk�ad sterowany BULLISM_LIMIT ("-" jest sygna�em zafiksowania w trybie batch
-new OptionalParameter<FLOAT>(HONOR_RATIO, 0, 1, "HONORPR", "Initial probability to born as honor agent"),//=0.18;//0.3333;//Jaka cz�� agent�w populacji jest �ci�le honorowa
+new OptionalParameter<FLOAT>(POLICE_EFFIC,0,1,"POLICEEF","Probability of efficient police intervention"),//=0.50;//=0.650;//=0.950; //Z jakim prawdopodobie�stwem wezwana policja obroni agenta
+new OptionalParameter<FLOAT>(BULLI_RATIO, 0, 1, "BULLYPR", "Initial probability to born as bully agent"),//=-0.25;//=0.2;//=0.100; //Albo zero-jedynkowo. Jak 1 to decyduje rozk�ad sterowany BULLISM_LIMIT ("-" jest sygna�em zafiksowania w trybie batch
+new OptionalParameter<FLOAT>(HONOR_RATIO, 0, 1, "HONORPR", "Initial probability to born as honor agent"),//=0.18;//=0.3333; //Jaka cz�� agent�w populacji jest �ci�le honorowa
 //BULLYPR=0.333   HONORPR=0.333 CALLPRP=0.333
-new OptionalParameter<FLOAT>(CALLER_POPU,0,1,"CALLPRP","Initial probability to born as police caller"),//=0.25;//Jaka cz�� wzywa policje zamiast si� poddawa�
+new OptionalParameter<FLOAT>(CALLER_POPU,0,1,"CALLPRP","Initial probability to born as police caller"), //=0.25; //Jaka możliwość żę będzie wzywał policje, zamiast się poddawać?
 new OptionalParameter<bool>(ONLY3STRAT,false,true,"CALLPOLISREST","Is police callers the last strategies?"
                                                                     "\n\t\tIf not the rational strategies take the rest to 100%"),
 new ParameterLabel("PARAMETERS FOR MULTIPLE SIMULATIONS (EXPLORATION/BATCH MODE)"),
@@ -352,7 +358,8 @@ new OptionalParameter<bool>(batch_mode,false,true,"BATCH","To switch into parame
 //char*  batch_names[]={"NO_BAT","Bt_SEL","Bt_HvC","Bt_HvA"}; //batch_names[batch_sele]
 new OptEnumParametr<BATCH_MODES>(batch_sele,BAT_SELECTION,BAT_HONORvsAGRR,
                                  "BSELE","To switch batches job.",//Valid are Bt_SEL(or 1),Bt_HvC(or 2),Bt_HvA(or 3)
-                                 4-1,batch_names+1/*,batch_vals+1*/), //Nie u�ywa pierwszego
+                                 4-1,batch_names+1/*,batch_vals+1*/), //Nie używa pierwszego
+new OptionalParameter<bool>(WAIT_AT_END,  false,true, "ENDWAIT","Wait for command after batch is finished."),
 new OptionalParameter<FLOAT>(POLICE_EFFIC_STEP,0,1.0,"PEFFSTEP","Pol. efficiency exploration step"),//=0.1;
 new OptionalParameter<FLOAT>(POLICE_EFFIC_MAX,0,1.0,"PEFFMAX","Pol. efficiency exploration maximum"),//=1;
 new OptionalParameter<FLOAT>(POLICE_EFFIC_MIN,0,1.0,"PEFFMIN","Pol. efficiency exploration minimum"),//=0;
@@ -362,7 +369,7 @@ new OptionalParameter<FLOAT>(PROPORTION_MIN,0,1.0,"PROPMIN","Proportion explorat
 new OptionalParameter<FLOAT>(SELECTION_STEP,0,1.0,"SELESTEP","Selection exploration step"),//=0.1;
 new OptionalParameter<FLOAT>(SELECTION_MAX,0,1.0,"SELEMAX","Selection exploration maximum"),//=1;
 new OptionalParameter<FLOAT>(SELECTION_MIN,0,1.0,"SELEMIN","Selection exploration minimum"),//=0;
-new ParameterLabel("STATISTIC & SO... HOW MANY, HOW OFTEN, WHERE"),
+new ParameterLabel("STATISTICS & SO... HOW MANY, HOW OFTEN, WHERE"),
 new OptionalParameter<unsigned>(REPETITION_LIMIT,1,1000,"REPETITIONS","How many repetitions for each settings we expect?"),
 new OptionalParameter<unsigned>(STAT_AFTER,1,1000000,"STATSTART","When start to calculate statistics in batch mode?"),
 new OptionalParameter<unsigned>(STOP_AFTER,1,1000000,"MAXSTEP","To stop each simulation after this number of steps"),
@@ -371,12 +378,12 @@ new OptionalParameter<unsigned>(DumpStep,1,1000000,  "DMPSTEP","For set how ofte
 new OptionalParameter<unsigned>(PREVSTEP,1,100,         "PREVSTEP","When previous state for calculating of variation is calculated?"),
 //new OptionalParameter<const char*>(LogName,"honor","HONOR","LOGNAME","Name for main log file"),
 //new OptionalParameter<const char*>(DumpNam,"honor_dump","DUMP","DUMPNAME","Name for detailed log file"),
-new OptionalParameter<wb_pchar>(LogName,wb_pchar("honor"),wb_pchar("HONOR"),"LOGNAME","Name for main log file"),
-new OptionalParameter<wb_pchar>(DumpNam,wb_pchar("honor_dump"),wb_pchar("DUMP"),"DUMPNAME","Name for detailed log file"),
-new OptionalParameter<string>(Comment,"bla bla bla bla","TEST#1","COMMENT","Comment for the experiment, will be put into log file"),
+new OptionalParameter<wb_pchar>(LogName,wb_pchar("honor"),wb_pchar("HONOR"),"LOGNAME","Name for the main log file"),
+new OptionalParameter<wb_pchar>(DumpNam,wb_pchar("honor_dump"),wb_pchar("DUMP"),"DUMPNAME","Name for a detailed log file"),
+new OptionalParameter<string>(Comment,"bla bla bla bla","TEST#1","COMMENT","Comment for the experiment, will be put into a log file"),
 new ParameterLabel("VISUALISATION OPTIONS"),
-new OptionalParameter<bool>(ConsoleLog,  false,true, "CONSOLOG","To log events on console window"),
-new OptionalParameter<bool>(dump_screens,false,true, "DUMPSCR","Dump graphics screen after every visualisation frame"),
+new OptionalParameter<bool>(ConsoleLog,  false,true, "CONSOLOG","To log events in a console window"),
+new OptionalParameter<bool>(dump_screens,false,true, "DUMPSCR","Dump graphics screen after every visualization frame"),
 new OptionalParameter<bool>(VisShorLinks,false,true, "VISSHORT","To visualize short links"),
 new OptionalParameter<bool>(VisFarLinks, false,true, "VISFARLN","To visualize far connections"),
 new OptionalParameter<bool>(VisAgents,   false,true, "VISAGENT","To visualize composed view of agents"),
@@ -385,8 +392,8 @@ new OptionalParameter<bool>(BatchPlotPower,false,true,"BATPOWER","To plot mean p
 #ifndef PUBLIC_2015
 new OptionalParameter<bool>(Batch_true_color,false,true,"BATTRCOL","To plot in true colors during batch sim."),
 #endif
-new OptionalParameter<unsigned>(VSIZ,3,20,"AGENTSIZ1","Side of an agent on the composed visualization"), //Maksymalny rozmiar boku agenta w wizualizacji kompozytowej
-new OptionalParameter<unsigned>(SSIZ,1,5,"AGENTSIZ2","Side of an agent on the small visualizations"), //Bok agenta w wizualizacji uzupełniającej (małej)
+new OptionalParameter<int>(VSIZ,3,20,"AGENTSIZ1","Side of an agent on the composed visualization"), //Maksymalny rozmiar boku agenta w wizualizacji kompozytowej
+new OptionalParameter<int>(SSIZ,1,5,"AGENTSIZ2","Side of an agent on the small visualizations"), //Bok agenta w wizualizacji uzupełniającej (małej)
 new ParameterLabel("END OF LIST")
 };                                              // Comment PREVSTEP ONLY3STRAT
 
@@ -475,7 +482,7 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
      o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(FAMILY_HONOR?"Yes":"No")<<SEP<<(RESTRICT_FH?"restricted":"for_all")<<ENDL;
 
      if(BULLI_RATIO >= 1) //... CO TO?         TODO?
-     {                                                                          assert("Dead code called?"==NULL);
+     {                                                                          assert("Dead code called?"==nullptr);
       o<<"FLOAT"<<SEP<<"BULLISM_LIMIT"
        //<<SEP<<BULLISM_LIMIT
        <<ENDL; //We use the maximum possible bulism. (Używamy maksymalny możliwy bulizm.)
@@ -491,7 +498,7 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
       else
       {
             o<<"FLOAT"<<SEP<<"CALLP_POPUL"<<SEP<<CALLER_POPU<<ENDL; //Jaka część wzywa policję, zamiast się od razu poddawać
-            o << "FLOAT" << SEP << "RATIONAL" << SEP << (1.0 - abs(CALLER_POPU) - abs(BULLI_RATIO) - abs(HONOR_RATIO)) << ENDL; //not really "loosers"
+            o << "FLOAT" << SEP << "RATIONAL" << SEP << (1.0 - abs(CALLER_POPU) - abs(BULLI_RATIO) - abs(HONOR_RATIO)) << ENDL; //not really the "loosers".
       }
      }
      o<<"FLOAT"<<SEP<<"RATIONALITY"<<SEP<<RATIONALITY<<ENDL<<ENDL; //Czy realistycznie ocenia własną siłę (vs. wg. własnej reputacji)
@@ -511,22 +518,6 @@ ofstream Dumps;  ///< Strumień zrzutów świata (?).
 
 unsigned long  step_counter=0; ///< Licznik kroków MC symulacji.
 unsigned long  LastStep=-1;    ///< Ostatnie wypisany krok
-
-/*
-/// Powolna dynamika wpływu społecznego — w losowej próbce sąsiedztwa Moora.
-void social_impact_step(wb_dynmatrix<HonorAgent>& World, double percent_of_MC = 100)
-{
-
-    unsigned N = (SIDE*SIDE*percent_of_MC)/100;//Ile losowa� w kroku MC
-    for(unsigned i=0;i<N;i++)
-    {
-        int v1=RANDOM(SIDE);
-        int h1=RANDOM(SIDE);
-        HonorAgent& Ag=World[v1][h1];    //Zapamiętanie referencji do agenta, żeby ciągle nie liczyć indeksów
-        //...
-    }
-}
-*/
 
 /*  GENERAL SymShell MAIN FUNCTION AND WHAT IT NEEDS.      */
 /*  (OGÓLNA FUNKCJA MAIN SymShella I TO CO JEJ POTRZEBNE)  */
@@ -559,7 +550,7 @@ int main(int argc,const char* argv[])
   //        "(programmed by Wojciech Borkowski from University of Warsaw)\n"
         "        "<<endl
         <<endl;
-    cout<<"Use -help for graphics setup information,\nor HELP for information about available parameters."<<endl;
+    cout<<"Use '-help' for graphics setup information,\nor 'HELP' for information about available parameters."<<endl;
 
     if(OptionalParameterBase::parse_options(argc,argv,Parameters,sizeof(Parameters)/sizeof(Parameters[0])))
     {
@@ -570,7 +561,7 @@ int main(int argc,const char* argv[])
     set_background(255);
     buffering_setup(1); // Czy włączona animacja klatek (efekty rysowania pokazane dopiero na koniec rysowania).
     if(batch_mode) fix_size(0);
-        else fix_size(1);
+    else fix_size(1);
 
     char bufor_nazwy[128];
     sprintf(bufor_nazwy, "%s %s", MODEL_NAME, VER_NUMBER);
@@ -645,7 +636,7 @@ int main(int argc,const char* argv[])
 void replot(wb_dynmatrix<HonorAgent>& World)
 {
     int old=mouse_activity(0);
-    //clear_screen();
+    invalidate_screen(); // Przewidywane pełne zamazanie w przyszłości. Uznajemy, że to, co stanie się z poprzednią zawartością nie ma już znaczenia.
     unsigned spw=screen_width()-SIDE*SSIZ;
     unsigned StartDyn=(SIDE+1)*SSIZ+char_height('X')+1; //Gdzie się zaczyna wizualizacja pomocnicza
     unsigned StartPow=StartDyn+(SIDE+1)*SSIZ+char_height('X')+1; //Gdzie się zaczyna wizualizacja aktywności
@@ -656,7 +647,7 @@ void replot(wb_dynmatrix<HonorAgent>& World)
 
     // PRINTING OF LINKS/ASSOCIATIONS (DRUKOWANIE POWIĄZAŃ):
     //*/////////////////////////////////////////////////////
-    int VSIZ2=VSIZ/2;
+    int VSIZ2= asserted<int>(VSIZ/2); //TODO -> unsigned
 
     if(VisFarLinks || VisShorLinks)
         for(unsigned n=0;n<SIDE*SIDE;n++)
@@ -674,12 +665,12 @@ void replot(wb_dynmatrix<HonorAgent>& World)
                     if(l<MOORE_SIZE && VisShorLinks)
                     {
                         set_pen_rgb(c.r,c.g,c.b,0,SSH_LINE_SOLID); // Ustala aktualny kolor linii za pomocą składowych RGB
-                        line_d(h*VSIZ+VSIZ2,v*VSIZ+VSIZ2,x*VSIZ+VSIZ2,y*VSIZ+VSIZ2);
+                        line_d(asserted<ssh_coordinate>( h*VSIZ+VSIZ2 ),asserted<ssh_coordinate>( v*VSIZ+VSIZ2 ),asserted<ssh_coordinate>( x*VSIZ+VSIZ2 ),asserted<ssh_coordinate>( y*VSIZ+VSIZ2 ) );
                     }
                     if(l>=MOORE_SIZE && VisFarLinks)
                     {
                         set_pen_rgb(c.r,c.g,c.b,1,SSH_LINE_SOLID); // Dla dalekich nieco grubsze
-                        line_d(h*VSIZ+VSIZ2,v*VSIZ+VSIZ2,x*VSIZ+VSIZ2,y*VSIZ+VSIZ2);
+                        line_d(asserted<ssh_coordinate>(h*VSIZ+VSIZ2),asserted<ssh_coordinate>(v*VSIZ+VSIZ2),asserted<ssh_coordinate>(x*VSIZ+VSIZ2),asserted<ssh_coordinate>(y*VSIZ+VSIZ2) );
                     }
                 }
         }
@@ -688,9 +679,9 @@ void replot(wb_dynmatrix<HonorAgent>& World)
 
     // PRINTING DATA FOR NODES (DRUKOWANIE DANYCH DLA WĘZŁÓW):
     //*///////////////////////////////////////////////////////
-    for(unsigned v=0;v<SIDE;v++)
+    for(int v=0;v<SIDE;v++)
     {
-        for(unsigned h=0;h<SIDE;h++)
+        for(int h=0;h<SIDE;h++)
         {
             HonorAgent& Ag=World[v][h];            // Zapamiętanie referencji do agenta
             ssh_rgb Color=Ag.GetColor();
@@ -698,7 +689,7 @@ void replot(wb_dynmatrix<HonorAgent>& World)
             if(VisAgents)
             {
                 if(!(VisFarLinks || VisShorLinks))
-                    fill_rect(h*VSIZ,v*VSIZ,h*VSIZ+VSIZ,v*VSIZ+VSIZ,255+128); //Generowanie nieprzezroczystego tła
+                    fill_rect((h*VSIZ),(v*VSIZ),(h*VSIZ+VSIZ),(v*VSIZ+VSIZ),255+128); //Generowanie nieprzezroczystego tła
 
                 if(VisReputation)
                 {   //Ag.GetFeiReputation()*255,0,Ag.CallPolice*255
@@ -794,6 +785,7 @@ void PlotTables(const char* Name1,wb_dynmatrix<FLOAT>& Tab1,
                 const char* Name3,wb_dynmatrix<FLOAT>& Tab3,
                 const char* Name4,wb_dynmatrix<FLOAT>& Tab4,bool true_color=false) //enum  {NO_BAT=0,BAT_SELECTION=1,BAT_HONORvsCPOLL=2,BAT_HONORvsAGRR=3} batch_sele;//Czy tryb przeszukiwania szuka po proporcjach czy po sile selekcji?
 {
+     invalidate_screen(); // Przewidywane pełne zamazanie w przyszłości. Uznajemy, że to, co stanie się z poprzednią zawartością nie ma już znaczenia.
      unsigned W=screen_width()/2;
      unsigned Ws=(W-2)/Tab1[0].get_size();
      unsigned H=(screen_height()-char_height('X'))/2;
@@ -1037,6 +1029,9 @@ void walk_params_prop()
    wb_dynmatrix<FLOAT> MeanPropOfPCall(Y,X);MeanPropOfPCall.fill(-9999.0);
    wb_dynmatrix<FLOAT> MeanPropOfOther(Y,X);MeanPropOfOther.fill(-9999.0);
 
+   plot(100,100,32);
+   flush_plot(); //Pierwszy ekran, pewnie pusty, a w każdym razie bez istotnych danych.
+
    for(FLOAT prop=PROPORTION_MIN,Y=0;prop<=PROPORTION_MAX;prop+=PROPORTION_STEP,Y++)
    {
        //if(BULLI_RATIO>=0)  //????
@@ -1087,7 +1082,7 @@ void walk_params_prop()
 
              for(step_counter=1;step_counter<=STOP_AFTER;/*step_counter++*/)
              {
-                Reset_action_memories(); //Czyszczenie, może niepotrzebne
+                Reset_action_memories(); //Czyszczenie, być może niepotrzebne
                 power_recovery_step();   // Krok procesu regeneracji sił
                 one_step(step_counter); // Krok dynamiki interakcji agresywnych
                 /*                      // step_counter++ JEST W ŚRODKU!
@@ -1187,9 +1182,10 @@ void walk_params_prop()
    Write_tables(OutLog,"MnPowOfOther",MeanPowerOfOther,"MnPropOfOther",MeanPropOfOther);
 
    WB_error_enter_before_clean=0; //Już się błędów nie spodziewamy
-   while(1)
+   while(WAIT_AT_END)
    {
         int znak=get_char();
+        delay_ms(100);
         if(znak==-1 || znak==27) break;
    }
 }
@@ -1224,6 +1220,9 @@ void walk_params_sele()
    wb_dynmatrix<FLOAT> MeanPropOfHonor(Y,X);MeanPropOfHonor.fill(-9999.0);
    wb_dynmatrix<FLOAT> MeanPropOfPCall(Y,X);MeanPropOfPCall.fill(-9999.0);
    wb_dynmatrix<FLOAT> MeanPropOfOther(Y,X);MeanPropOfOther.fill(-9999.0);
+
+    plot(100,100,32);
+    flush_plot(); //Pierwszy ekran, pewnie pusty, a w każdym razie bez istotnych danych.
 
    for(FLOAT selec=SELECTION_MIN,Y=0;selec<=SELECTION_MAX;selec+=SELECTION_STEP,Y++)
    {
@@ -1403,9 +1402,10 @@ void walk_params_sele()
    SaveScreen(STOP_AFTER+1);
 
    WB_error_enter_before_clean=0; //Już się błędów nie spodziewamy.
-   while(1)
+   while(WAIT_AT_END)
    {
         int znak=get_char();
+        delay_ms(100);
         if(znak==-1 || znak==27) break;
    }
 }
@@ -1440,6 +1440,9 @@ void walk_honor_vs_agrr()
    wb_dynmatrix<FLOAT> MeanPropOfHonor(Y,X);MeanPropOfHonor.fill(-9999.0);
    wb_dynmatrix<FLOAT> MeanPropOfPCall(Y,X);MeanPropOfPCall.fill(-9999.0);
    wb_dynmatrix<FLOAT> MeanPropOfOther(Y,X);MeanPropOfOther.fill(-9999.0);
+
+   plot(100,100,32);
+   flush_plot(); //Pierwszy ekran, pewnie pusty, a w każdym razie bez istotnych danych.
 
    for(FLOAT select=SELECTION_MIN,YY=0; select <= SELECTION_MAX; select+=SELECTION_STEP,YY++)
    {
@@ -1586,9 +1589,10 @@ void walk_honor_vs_agrr()
    Write_tables(OutLog,"MnPowOfOther",MeanPowerOfOther,"MnPropOfOther",MeanPropOfOther);
 
    WB_error_enter_before_clean=0; //Już się błędów nie spodziewamy
-   while(1)
+   while(WAIT_AT_END)
    {
         int znak=get_char();
+        delay_ms(100);
         if(znak==-1 || znak==27) break;
    }
 }
@@ -1603,11 +1607,12 @@ void fixed_params_mode()
     InitAttributes(SIDE * SIDE);
     dump_step(HonorAgent::World,0); //Po raz pierwszy
     CalculateStatistics(HonorAgent::World); //Po raz pierwszy
+    replot(HonorAgent::World);
 
     // "Prowizoryczna" pętla główna
     Help();
     int cont=1; //flaga kontynuacji programu
-    int runs=0; //flaga wykonywania symulacji
+    int runs=WAIT_AT_END?0:1; //flaga wykonywania symulacji
 
     while(cont)
     {
@@ -1712,6 +1717,9 @@ void fixed_params_mode()
                             dump_step(HonorAgent::World,step_counter); //Po raz ostatni
                             cout<<"\nStop because of limit "<<STOP_AFTER<<" steps\a\a"<<endl;
                             runs=false;
+                            flush_plot();
+                            if(!WAIT_AT_END)
+                                cont=false;
                         }
                     }
                     else
@@ -1722,6 +1730,8 @@ void fixed_params_mode()
                        }
                     }
                 }
+            } else {
+                flush_plot();
             }
     }
 }
@@ -1729,7 +1739,7 @@ void fixed_params_mode()
 /// Print runtime help. (Drukuj pomoc czasu wykonania)
 void Help()
 {
-    cout<<"POSSIBLE COMMANDS FOR GRAPHIC WINDOW:"<<endl
+    cout<<"POSSIBLE COMMANDS FOR A GRAPHIC WINDOW:"<<endl
         <<"q - q-uit or ESC\n"
         "\n"
         "n - n-ext MC step\n"
@@ -1740,7 +1750,7 @@ void Help()
         "d - d-ump on every visualisation\n"
         "\n"
         "1..0 visualisation frequency\n"
-        "c - swich c-onsole on/off\n"
+        "c - switch c-onsole on/off\n"
         "s - visualize s-hort links\n"
         "f - visualize f-ar links\n"
         "a - visualize a-gents\n"

@@ -3,8 +3,8 @@
 /// @date 2025-12-17 (last modifications)
 //*//////////////////////////////////////////////////////////////////////////////
 
-//#define TESTING_RULE_LITERALS 1     ///< VERY SLOW!!!
-//#define HONOR_WITHOUT_REPUTATION 1  ///< Testing of "null hypothesis"
+//#define TESTING_RULE_LITERALS 1    ///< VERY SLOW!!!
+//#define HONOR_WITHOUT_REPUTATION 1 ///< Testing of "null hypothesis"
 
 typedef double FLOAT;
 #include "iostream"
@@ -20,8 +20,8 @@ extern unsigned population_growth; ///< How population growth. (SPOSOBY ROZMNAŻ
                                    ///< 3-as global distribution  (3 - globalne, losowy agent z całości populacji)
                                    ///< Default: 1; AND ONLY #1 IS USED FOR THE PAPER in 2015
 
-// Parameters for world of agents:
-//*///////////////////////////////
+// Parameters for the world of agents:
+//*///////////////////////////////////
 const unsigned              SIDE = 100;    ///< SIDE*SIDE is the size of matrix.
 const int              MOORE_RAD = 3;      ///< Should be int not unsigned because of randomization formula.
 const unsigned        MOORE_SIZE = (4*MOORE_RAD*MOORE_RAD)+4*MOORE_RAD;   ///< Size of Moore neigh.
@@ -36,12 +36,12 @@ const unsigned         MAX_LINKS = MOORE_SIZE + 2/*for sure*/ + (FAR_LINKS/(SIDE
 //*//////////////////////
 extern FLOAT      BULLI_RATIO; ///< Default is `-0.25`; Ratio of aggressive agents.  ("-" jest sygnałem zafiksowania w trybie batch (?!?!?! TODO? }
 extern FLOAT      HONOR_RATIO; ///< Default is `0.25`; Ratio of honor agents. (Jaka część agentów populacji jest honorowa)
-extern FLOAT      CALLER_POPU; ///< Default is `0.25`; Ratio of police callers. (Jaka część wzywa policję zamiast walczyć)
+extern FLOAT      CALLER_POPU; ///< Default is `0.25`; Ratio of police callers. (Jaka część wzywa policję, zamiast walczyć)
 extern bool        ONLY3STRAT; ///< Default is `false`; Without rational strategy. (Czy tylko 3 strategie?)
 
 extern FLOAT     POLICE_EFFIC; ///< Default:=0.050; Probability of efficient interventions of authority. (Z jakim prawdopodobieństwem wezwana policja obroni agenta)
 
-extern bool     Inherit_MAX_POWER;  ///< Default = false; Is it power inheritetable. NOT USED? (Czy nowi agenci dziedziczą (z szumem) max power po rodzicu?)
+extern bool     Inherit_MAX_POWER;  ///< Default = false; Is it power inheritable. NOT USED? (Czy nowi agenci dziedziczą (z szumem) max power po rodzicu?)
 extern FLOAT    NOISE_LIMIT;        ///< For adding to `parent.PowLimit`. Default=0.3; Used in `power_recovery_step()`
 
 //const FLOAT     BULLISM_LIMIT=-1; ///< NOT USED (Nie używany. Jak ujemne to rozkład Pareto lub brak rozkładu, jak dodatnie to dzwonowy. Jak BULLI_RATIO 1 to decyduje rozkład sterowany BULLISM_LIMIT)
@@ -91,13 +91,17 @@ class HonorAgent
         unsigned     Fails=0; //!< How many times lost. (Ile razy przegrał)
         unsigned Successes=0; //!< How many times he won. (Ile razy wygrał)
 
-        union { //!< Action counters.
-        struct { unsigned NOTHING=0, WITHDRAW=0, GIVEUP=0, HOOK=0, FIGHT=0, CALLAUTH=0;};
-        unsigned Tab[6]; };
 
+        union [[maybe_unused]] { //!< Action counters.
+        struct { unsigned NOTHING=0, WITHDRAW=0, GIVEUP=0, HOOK=0, FIGHT=0, CALLAUTH=0;};
+                 unsigned Tab[6]; };
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
         // METHODS OF STRUCT ACTIONS:
         //*//////////////////////////
         Actions() { Reset();}
+#pragma clang diagnostic pop
 
         void Reset(){NOTHING=WITHDRAW=GIVEUP=HOOK=FIGHT=CALLAUTH=Fails=Successes=Counter=0;}
 
@@ -118,8 +122,8 @@ class HonorAgent
     /// \brief Connection to neib. agents.
     struct LinkTo {
         unsigned X,Y;
-        unsigned Parent:1; //!< This is parent of the agent.
-        unsigned Child:1;  //!< This is one of the children. (@NOTE: TU WAZNA ZMIANA. Nie byl to bit ale caly int!!!)
+        unsigned Parent:1; //!< This is a parent of the agent.
+        unsigned Child:1;  //!< This is one of the children. (@NOTE: TU WAŻNA ZMIANA. Nie był to bit, ale caly `int`!!!)
         LinkTo() {X=Y=-1;Parent=0;Child=0;}
     };
 
@@ -204,6 +208,7 @@ class HonorAgent
     friend void PrintHonorAgentInfo(std::ostream& o,const HonorAgent& H); //!< For human friendly inspection of the agent.
 
  private:
+    [[maybe_unused]]
     const LinkTo* Neigh(unsigned i); //!< Raw access to link data.
 
     wbrtm::wb_dynarray<LinkTo> Neighbourhood; //!< List of neighbors.
@@ -230,7 +235,7 @@ void Reset_action_memories();
 //*///////////////////////
 
 inline
-bool HonorAgent::AreNeigh(int x1,int y1,int x2,int y2)
+bool HonorAgent::AreNeigh(int x1,int y1,int x2,int y2) // TODO Dlaczego to jest int a nie unsigned?
 {
     HonorAgent& A=HonorAgent::World[y1][x1];
     for(unsigned i=0;i<A.NeighSize();i++)

@@ -3,7 +3,10 @@
 /// @date 2025-12-17 (last modifications)
 //*//////////////////////////////////////////////////////////////////////////////
 
-#define _USE_MATH_DEFINES //--> M_PI use. Needed by MSVC?
+#ifdef WINDOWS
+#define _USE_MATH_DEFINES //bo M_PI
+#endif
+
 #include <cmath>
 #include <iostream>
 
@@ -15,6 +18,8 @@
 
 using namespace wbrtm;
 using namespace std;
+
+#include "asserted.h"
 
 // HonorAgent class static fields (Pola statyczne klasy HonorAgent):
 //*/////////////////////////////////////////////////////////////////
@@ -56,7 +61,7 @@ void HonorAgent::RandomReset(float POW_LIMIT)
         else
             PowLimit=(DRAND()+DRAND()+DRAND()+DRAND()+DRAND()+DRAND())/6;  //Losuje jaką siłę może osiągnąć maksymalnie
 
-        Power=(0.5+DRAND()*0.5)*PowLimit; //Zawsze przynajmniej 0.5 limitu siły
+        Power=(0.5+DRAND()*0.5)*PowLimit; //Zawsze przynajmniej 1/2 limitu siły
         HonorFeiRep=Power; //Reputacja wojownika. Najpierw "z wyglądu", a potem z realnych konfrontacji
                            //Inicjalizacja: DRAND()*Power, a kiedyś było DRAND()*0.5 też. Potem uproszczone do Power;
                                                                                                  assert(0<=HonorFeiRep);
@@ -69,18 +74,18 @@ void HonorAgent::RandomReset(float POW_LIMIT)
         Honor=0;CallPolice=0; //Default values (Wartości domyślne)
                                                                                            assert(fabs(BULLI_RATIO) < 1);
 
-        if(fabs(BULLI_RATIO) < 1)
+        if(fabs(BULLI_RATIO) < 1.0)
         {
-           Agres=(DRAND()<fabs(BULLI_RATIO) ? 1 : 0); //Albo jest AGRESYWNY, albo nie jest
+           Agres=(DRAND()<fabs(BULLI_RATIO) ? 1.0 : 0.0); //Albo jest AGRESYWNY, albo nie jest
 
-           if(Agres!=1) //Jak nie jest
+           if(Agres!=1) //Jak nie jest...
            {
-             Honor=(DRAND()*(1-fabs(BULLI_RATIO)) < fabs(HONOR_RATIO) ? 1 : 0 ); //Jest HONOROWY albo nie jest
+             Honor=(DRAND()*(1-fabs(BULLI_RATIO)) < fabs(HONOR_RATIO) ? 1.0 : 0.0 ); //Jest HONOROWY albo nie jest
 
              if(Honor!=1)   //NIE AGRESYWNY i NIE HONOROWY
              {              //"dignity" albo racjonalny
                if(!ONLY3STRAT) //jeśli TRUE to znikają RACJONALNI (czyli wzywanie policji jest wtedy "strategią resztkową")
-                    CallPolice=(DRAND()*(1 - fabs(BULLI_RATIO) - fabs(HONOR_RATIO)) < fabs(CALLER_POPU) ? 1 : 0); //Jest albo nie jest
+                    CallPolice=(DRAND()*(1 - fabs(BULLI_RATIO) - fabs(HONOR_RATIO)) < fabs(CALLER_POPU) ? 1.0 : 0.0); //Jest albo nie jest
                else
                     CallPolice=1; //Nie ma strategii "racjonalnej"
              }
@@ -99,7 +104,7 @@ void HonorAgent::RandomReset(float POW_LIMIT)
 }
 
 /// Random-matrix connections initialization. This means that they are local but also distant.
-/// (Losowo-matrycowa inicjalizacja połączeń. To oznacza, że są lokalne ale też dalekie.)
+/// (Losowo-matrycowa inicjalizacja połączeń. To oznacza, że są lokalne, ale też dalekie.)
 void InitConnections(FLOAT HowManyFar)
 {
     // Połączenia z najbliższymi sąsiadami
@@ -136,7 +141,7 @@ void InitConnections(FLOAT HowManyFar)
             y2=RANDOM(SIDE);
         }while( (x1==x2 && y1==y2)                            //Nie sam na siebie
                 || HonorAgent::World[y2][x2].NeighSize()>=MAX_LINKS //Musi mieć wolny slot
-                || HonorAgent::AreNeigh(x1,y1,x2,y2)); //CZY KTOŚ MOŻE BYĆ DWA RAZY NA LIŚCIE!?
+                || HonorAgent::AreNeigh(asserted<int>(x1),asserted<int>(y1),asserted<int>(x2),asserted<int>(y2))); //CZY KTOŚ MOŻE BYĆ DWA RAZY NA LIŚCIE!?
 
         //Połączenie ich linkami w obie strony
         HonorAgent::World[y1][x1].addNeigh(x2,y2);
@@ -152,20 +157,18 @@ void InitConnections(FLOAT HowManyFar)
 /// (Wybór partnera interakcji przez agenta, który dostał losową inicjatywę, oraz decyzja co agent z inicjatywą ma zrobić.)
 /// \details
 /// Both the Honor and the Aggressive have spontaneous aggression, which can be differently probable for each culture.
-/// In both cases it plays the role of a "challenge" - it verifies whether the existing reputation is true.
-/// Without it someone "strong by nature" could never be brought to reality.
+/// In both cases, it plays the role of a "challenge" - it verifies whether the existing reputation is true.
+/// Without it, someone "strong by nature" could never be brought to reality.
 /// Besides, Aggressive people have their own strategic aggression, i.e. attacking the weaker ones.
-/// When the Aggressiveness attribute is less than 1, the attack may not always be performed,
-/// but we did not use this option in the article,
-/// as in the end of family/clan honor.
+/// When the Aggressiveness attribute is less than 1, the attack may not always be performed, but
+/// we did not use this option in the article, as at the end of family/clan honor.
 /// PL:
-/// Zarówno Honorowi jak i agresywni mają spontaniczną agresję, która może być różnie prawdopodobna dla każdej z kultur.
+/// Zarówno Honorowi, jak i agresywni mają spontaniczną agresję, która może być różnie prawdopodobna dla każdej z kultur.
 /// W obu przypadkach odgrywa ona rolę "challengu" - weryfikuje czy istniejąca reputacja jest prawdziwa.
 /// Bez tego ktoś "silny z natury" mógłby nigdy nie zostać sprowadzony do realiów.
-/// Poza tym Agresywni mają swoją agresję strategiczną, czyli atakowanie słabszych.
-/// Gdy atrybut Agresywności jest mniejszy niż 1 to atak może być przeprowadzany nie zawsze,
-/// ale z tej możliwości nie korzystaliśmy w artykule,
-/// podobnie jak w końcu z honoru rodzinnego/klanowego.
+/// Poza tym "Agresywni" mają swoją agresję strategiczną, czyli atakowanie tylko słabszych.
+/// Gdy atrybut agresywności jest mniejszy niż 1, to atak może być przeprowadzany nie zawsze, ale
+/// z tej możliwości nie korzystaliśmy w artykule, podobnie jak w końcu z honoru rodzinnego/klanowego.
 ///
 HonorAgent::Decision  HonorAgent::check_partner(unsigned& x,unsigned& y)
 {
@@ -240,15 +243,14 @@ HonorAgent::Decision  HonorAgent::answer_if_hooked(unsigned x,unsigned y)
      {
         this->MemOfLastDecision=CALL_AUTH;
      }
-     else
-     if(this->Honor>0.999999
-     || (this->Honor>0 && DRAND()<this->Honor)
-     || Ag.HonorFeiRep<this->HonorFeiRep
-//     || Ag.HonorFeiRep<this->Power /*HonorFeiRep*/)   //Tylko do wersji 0.2.60
-     )
-     {
-        this->MemOfLastDecision=FIGHT;
-     }
+     else if(this->Honor>0.999999
+          || (this->Honor>0 && DRAND()<this->Honor)
+          || Ag.HonorFeiRep<this->HonorFeiRep
+   //     || Ag.HonorFeiRep<this->Power /*HonorFeiRep*/)   //Tylko do wersji 0.2.60
+          )
+          {
+             this->MemOfLastDecision=FIGHT;
+          }
 
      this->HisActions.Count(this->MemOfLastDecision);
      return this->MemOfLastDecision;
@@ -345,16 +347,16 @@ void one_step(unsigned long& step_counter)
                     break;
 
            //Odpowiedzi na zaczepkę, które się nie powinny zdarzać:
-           case HonorAgent::WITHDRAW:/* TU NIE MOżE BYĆ TUTAJ! */
-           case HonorAgent::HOOK:     /* TU NIE MOżE BYĆ TUTAJ! */
-           default:                  /* TU NIE MOżE BYĆ TUTAJ! */
+           case HonorAgent::WITHDRAW: /* TU NIE MOŻE BYĆ! */
+           case HonorAgent::HOOK:     /* TU NIE MOŻE BYĆ! */
+           default:                   /* TU NIE MOŻE BYĆ! */
                   cout<<"?";  //MOCNO Podejrzane! Nieznane akcje nie powinny się zdarzać!
            break;
            }
         }
         else  //if(WITHDRAW)  - Jak się wycofał z zaczepiania?
         {
-            AgI.change_reputation(-0.0001*TEST_DIVIDER,*(HonorAgent*)(NULL)); //Minimalnie traci w swoich oczach
+            AgI.change_reputation(-0.0001*TEST_DIVIDER,*(HonorAgent*)(nullptr)); //Minimalnie traci w swoich oczach
         }
     }
 
@@ -363,6 +365,7 @@ void one_step(unsigned long& step_counter)
 
 // (Statystyki przeżyciowe) Survival statistics:
 //*/////////////////////////////////////////////
+
 unsigned      NumberOfKilled=0; ///< Counter of all deaths
 unsigned NumberOfKilledToday=0; ///< Death counter per step
 
@@ -469,7 +472,7 @@ void power_recovery_step()
            }
            else
            if(population_growth==3) //Tryb GLOBALNY z losowym członkiem populacji jako rodzicem
-           {                                                                                assert(FAMILY_HONOR==false);
+           {                                                                               // assert(FAMILY_HONOR==false);
                 unsigned xx=RANDOM(SIDE),yy=RANDOM(SIDE);
                 HonorAgent& Drugi=HonorAgent::World[yy][xx]; //Uchwyt do agenta
                 if(Drugi.Power>0)  //Może postać do rozliczenia na później.
@@ -594,7 +597,7 @@ bool HonorAgent::getNeigh(unsigned i,unsigned& x,unsigned& y) const
 
 /// A pointer to the link data of the i-th neighbor.
 /// (Wskaźnik do danych powiązania z i-tym sąsiadem)
-const HonorAgent::LinkTo* HonorAgent::Neigh(unsigned i)
+__attribute__((unused)) const HonorAgent::LinkTo* HonorAgent::Neigh(unsigned i)
 {
   if(i<HowManyNeigh)
       return &Neighbourhood[i];
@@ -636,22 +639,22 @@ void HonorAgent::lost_power(double delta)
 void HonorAgent::change_reputation(double delta, HonorAgent& reason, int level)//level==0
 {                                                                                        //Sam siebie nie może atakować!
                                                   assert(this!=&reason); assert(0<=HonorFeiRep); assert(HonorFeiRep<=1);
-#ifdef HONOR_WITHOUT_REPUTATION //For "null hipothesis" tests
+#ifdef HONOR_WITHOUT_REPUTATION //For "null hypothesis" tests
     if(this->Honor==1) //Honor agent
      {
         return; //nothing to do
      }
-#endif //FAMILY_HONOR
-    HonorAgent* Cappo=NULL; //Przy okazji sprawdzenia, czy ktoś jest w tej rodzinie, ustalamy "Ojca chrzestnego".
-    if( &reason != NULL
+#endif // HONOR_WITHOUT_REPUTATION
+    HonorAgent* Cappo=nullptr; //Przy okazji sprawdzenia, czy ktoś jest w tej rodzinie, ustalamy "Ojca chrzestnego".
+    if( &reason != nullptr
     && IsUsingFamilyHonor() // The use of family honor depends on the parameters and optional properties of the agent.
-    && !IsMyFamilyMember(reason, Cappo) )//Jeżeli działa honor rodzinny to ...
+    && !IsMyFamilyMember(reason, Cappo) ) //Jeżeli działa honor rodzinny to ...
     {
-        if(Cappo==NULL) //Nie ma żyjącego ojca. Tu ślad się urywa.
+        if(Cappo==nullptr) //Nie ma żyjącego ojca. Tu ślad się urywa.
         {
             Cappo = this;
         }
-        this->FamColor=Cappo->Color; //Jak mamy jeszcze jakiegos cappo to przyjmujemy jego kolor.
+        this->FamColor=Cappo->Color; //Jak mamy jeszcze jakiegoś cappo to przyjmujemy jego kolor.
         Cappo->ChangeReputationThruFamily(delta); //Ale może mieć dzieci...
     }
     else
