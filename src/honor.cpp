@@ -65,7 +65,7 @@ bool  WAIT_AT_END=false;      ///< Czy program będzie aktywnie czekać na dyrek
 bool  batch_mode=false;       ///< Is the parameter space search operating mode?
                               ///< (Czy tryb pracy przeszukiwania przestrzeni parametrów?)
 
-unsigned population_growth=0; ///< How population growth? (SPOSOBY ROZMNAŻANIA)
+unsigned population_growth=1; ///< How population growth? (SPOSOBY ROZMNAŻANIA)
                               ///<  0 - as initial distribution, (0 - wg. inicjalnych proporcji)
                               ///<  1 - as local distribution, (1 - lokalne rozmazanie losowe sąsiad)
                               ///<  2 - NOT IMPLEMENTED         (2 - lokalne rozmazanie proporcjonalne do siły)
