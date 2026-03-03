@@ -1,7 +1,7 @@
 # CMAKE configuration for HONOR simulation project
 ######################################################################
 # @authors: Wojciech Borkowski, Andrzej Nowak
-# @date: 2025-12-13 (last modifications)
+# @date: 2026-03-03 (last modifications)
 #
 cmake_minimum_required(VERSION 3.6)
 project(honor_model_2)
@@ -52,14 +52,14 @@ message(${PROJECT_NAME} ": SymShell used from ${SYMSHELL}.")
 
 add_subdirectory( ${SYMSHELL} ${SYMSHELL} )
 
-include_directories( ${SYMSHELL} )
+include_directories( ${SYMSHELL}/INCL/ )
 
 if(true)
     add_executable( honor2svg
                     src/HonorAgent.hpp
                     src/HonorAgent.cpp
                     src/honor.cpp
-            ../../public/SymShellLight/asserted.h
+                    ${SYMSHELL}/INCL/asserted.h
     )
     target_link_libraries( honor2svg
                     "-L${SYMSHELL}"
