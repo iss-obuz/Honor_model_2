@@ -1,7 +1,7 @@
 ﻿/// @file
 /// @brief Agent for "Culture of Honor" - IMPLEMENTATIONS of METHODS
 /// @date 2025-12-17 (last modifications)
-//*//////////////////////////////////////////////////////////////////////////////
+//*/////////////////////////////////////////////////////////////////
 
 #ifdef WINDOWS
 #define _USE_MATH_DEFINES //bo M_PI
@@ -10,16 +10,14 @@
 #include <cmath>
 #include <iostream>
 
-#include "symshell.h"
 #define HIDE_WB_PTR_IO 1
 #include "wb_ptr.hpp"
-
+#include "symshell.h"
 #include "HonorAgent.hpp"
+#include "asserted.h"
 
 using namespace wbrtm;
 using namespace std;
-
-#include "asserted.h"
 
 // HonorAgent class static fields (Pola statyczne klasy HonorAgent):
 //*/////////////////////////////////////////////////////////////////

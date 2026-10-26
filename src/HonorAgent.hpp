@@ -1,7 +1,7 @@
 ﻿/// @file
 /// @brief Agent for "culture of honor" model - declarations
 /// @date 2025-12-17 (last modifications)
-//*//////////////////////////////////////////////////////////////////////////////
+//*/////////////////////////////////////////////////////////
 
 //#define TESTING_RULE_LITERALS 1    ///< VERY SLOW!!!
 //#define HONOR_WITHOUT_REPUTATION 1 ///< Testing of "null hypothesis"
@@ -318,17 +318,17 @@ inline void HonorAgent::MakeColor(HonorAgent& Parent)
 extern double MeanFeiReputation;
 extern double MeanCallPolice;
 extern double MeanPower;
-extern double MeanAgres;
+extern double MeanAggre;
 extern double MeanHonor;
 
 extern unsigned NumberOfKilled;
 extern unsigned NumberOfKilledToday;
 
-extern HonorAgent::Actions CoutersForAll;
-extern HonorAgent::Actions CoutersForBullys;
-extern HonorAgent::Actions CoutersForHonors;
-extern HonorAgent::Actions CoutersForCPolice;
-extern HonorAgent::Actions CoutersForRationals;
+extern HonorAgent::Actions CountersForAll;
+extern HonorAgent::Actions CountersForBullys;
+extern HonorAgent::Actions CountersForHonors;
+extern HonorAgent::Actions CountersForCPolice;
+extern HonorAgent::Actions CountersForRationals;
 
 /// Struct for statistical adders (kind of counters).
 struct Adder
