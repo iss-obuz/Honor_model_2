@@ -52,7 +52,7 @@ message(${PROJECT_NAME} ": SymShell used from ${SYMSHELL}.")
 
 add_subdirectory( ${SYMSHELL} ${SYMSHELL} )
 
-include_directories( ${SYMSHELL}/INCL/ )
+include_directories( ${SYMSHELL}/INCL/ ${SYMSHELL}/INCL/RTM_LIGHT)
 
 if(true)
     add_executable( honor2svg
