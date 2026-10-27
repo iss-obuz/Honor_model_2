@@ -1,6 +1,6 @@
 ﻿/// @file
 /// @brief Agent for "culture of honor" model - declarations
-/// @date 2025-12-17 (last modifications)
+/// @date 2026-10-27 (last modifications)
 //*/////////////////////////////////////////////////////////
 
 //#define TESTING_RULE_LITERALS 1    ///< VERY SLOW!!!
@@ -46,7 +46,7 @@ const auto             MAX_LINKS = MOORE_SIZE + 2/*for sure*/ + (FAR_LINKS/(SIDE
 
 /// Ratio of aggressive agents. PL.: Współczynnik agresywnych agentów.
 /// TODO "minus" jest sygnałem zafiksowania w trybie batch (?!?!?!)
-extern FLOAT      BULLI_RATIO; ///< Default is `-0.25`;
+extern FLOAT      BULLIES_RATIO; ///< Default is `-0.25`;
 
 /// Ratio of honor agents.
 /// PL.: Jaka część agentów populacji jest honorowa.
@@ -60,7 +60,7 @@ extern FLOAT      CALLER_POPU; ///< Default is `0.25`;
 /// PL.: Czy tylko 3 strategie? Jeśli nie to brakujący ułamek dopełnia strategia "racjonalna".
 extern bool        ONLY3STRAT; ///< Default is `false`;
 
-/// Probability of efficient interventions of authority.
+/// Probability of authority efficient interventions.
 /// Z jakim prawdopodobieństwem wezwana policja obroni agenta.
 extern FLOAT    POLICE_EFF; ///< Default:=0.050;
 
@@ -70,7 +70,7 @@ extern FLOAT    NOISE_LIMIT;        ///< For adding to `parent.PowLimit`. Defaul
                                     ///< Szum dodawany do `PowLimit` rodzica. Domyślnie = 0,3;
 
 //const FLOAT   BULLYISM_LIMIT = -1; ///< Nie używany.
-//                                   ///< Gdy BULLI_RATIO = 1 to decyduje rozkład sterowany BULLYISM_LIMIT.
+//                                   ///< Gdy BULLIES_RATIO = 1 to decyduje rozkład sterowany BULLYISM_LIMIT.
 //                                   ///< Jak ujemne to rozkład Pareto lub brak rozkładu, a jak dodatnie to dzwonowy.
 
 const FLOAT     RATIONALITY=0.0;  ///< How realistically the agent evaluates their own strength.
@@ -249,7 +249,10 @@ class HonorAgent
     bool    isChild(unsigned i);  //!< Is this neighbor is a child. PL.: Czy dany sąsiad jest dzieckiem)
     bool    isUsingFamilyHonor() const; //!< The use of family honor depends on the parameters and optional properties of the agent.
                                         //!< PL.: Użycie honoru rodzinnego zależy od parametrów i opcjonalnie właściwości agenta.
-    bool    isMyFamilyMember(HonorAgent& Other, HonorAgent*& Cappo, int MaxLevel= 2); //!< Is another "belongs to the family". By the way, we set the "Godfather" PL.: Czy inny "należy do rodziny". Przy okazji ustalamy "Ojca chrzestnego".
+    bool    isMyFamilyMember(HonorAgent& Other, HonorAgent*& Cappo, int MaxLevel= 2); //!< Is another "belongs to the family"?
+                                                                                      //!< By the way, we set the "Godfather".
+                                                                                      //!< PL.: Czy inny "należy do rodziny"?
+                                                                                      //!< Przy okazji ustalamy "Ojca chrzestnego".
 
     void    changeReputationThruFamily(double Delta); //!< Recursive change of the reputation of the agent down the best of 'Cappo' of the family. PL.: Rodzinna, rekurencyjna zmiana reputacji od agenta w dół najlepiej z "Cappo" rodziny.
     void    whenGodfatherDeath(); //!< It removes family links. PL.: Usuwa powiązania rodzinne.

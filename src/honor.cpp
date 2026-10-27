@@ -1,14 +1,15 @@
-﻿#pragma clang diagnostic push
-#pragma ide diagnostic ignored "modernize-loop-convert"
-#pragma ide diagnostic ignored "Simplify"
-/// \file
+﻿/// \file
 /// \brief Culture of honor evolution
 ///        ==========================
 /// \details In the paper "The Evolutionary Basis of Honor Cultures"
 ///          Andrzej Nowak, Michele Gelfand, Wojciech Borkowski
 /// \author Wojciech Borkowski is responsible for all this code.
-/// @date 2026-01-06 (last modification)
+/// @date 2026-10-26 (last modification)
 //*/////////////////////////////////////////////////////////////////
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "modernize-loop-convert"
+#pragma ide diagnostic ignored "Simplify"
 
 #include <iostream>
 #include <fstream>
@@ -228,7 +229,7 @@ FLOAT    NOISE_LIMIT=0.3;         ///< Noise multiplier when inheriting the maxi
 /// \note
 /// "-" is the value fix marker in batch mode
 /// PL.: "-" jest markerem zafiksowania wartości w trybie batch
-FLOAT    BULLI_RATIO=-0.25;  ///< Epl.: 0.2;//0.100; //Or zero-one. As in the 2015 article.
+FLOAT    BULLIES_RATIO=-0.25;  ///< Epl.: 0.2;//0.100; //Or zero-one. As in the 2015 article.
 
 /// What proportion of the agents of the population is honorable.
 /// PL.: Jaka część agentów populacji jest honorowa.
@@ -363,7 +364,7 @@ new OptionalParameter<FLOAT>(TEST_DIVIDER,1.0/3.0,1.0,"TEST_DIVIDER","For testin
 //FLOAT    RECOVERY_POWER = 0.005; //Jaką część siły odzyskuje w kroku czasu.
 new OptionalParameter<FLOAT>(RECOVERY_POWER,0.00001,0.5,"RECPOWER","How fast agent recovery for fight damage"),
 new OptionalParameter<FLOAT>(POLICE_EFF, 0, 1, "POLICEEF", "Probability of efficient police intervention"), // = 0.50;//=0.650;//=0.950; //Z jakim prawdopodobieństwem wezwana policja obroni agenta
-new OptionalParameter<FLOAT>(BULLI_RATIO, 0, 1, "BULLYPR", "Initial probability to born as bully agent"), // = -0.25;//=0.2;//=0.100; //Albo zero-jedynkowo.
+new OptionalParameter<FLOAT>(BULLIES_RATIO, 0, 1, "BULLYPR", "Initial probability to born as bully agent"), // = -0.25;//=0.2;//=0.100; //Albo zero-jedynkowo.
                                                                                                           //Jak 1 to decyduje rozkład sterowany BULLISM_LIMIT ("-" jest sygnałem zafiksowania w trybie batch).
 new OptionalParameter<FLOAT>(HONOR_RATIO, 0, 1, "HONORPR", "Initial probability to born as honor agent"), // = 0.18;//=0.3333; //Jaka część agentów populacji jest ściśle honorowa
                                                                                                           //BULLYPR = 0.333 ,  HONORPR = 0.333 , CALLPRP = 0.333
@@ -484,16 +485,16 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
         o << "uint " << SEP << "TYPE OF BATCH JOB:" << SEP << batch_select << SEP << batch_names[batch_select] << ENDL;
         o << "FLOAT" << SEP << "Default POLICE_EFFIC " << SEP << POLICE_EFF << ENDL;    //Z jakim prawdopodobieństwem wezwana policja obroni agenta
         o<<"FLOAT"<<SEP<<"Default USED_SELECTION"<<SEP<<USED_SELECTION<<ENDL; //Jak bardzo przegrani już umierają z braku sił (0 - brak selekcji w ogóle)
-        o << "FLOAT" << SEP << "Default BULLY_POPUL  " << SEP << BULLI_RATIO << ENDL;
+        o << "FLOAT" << SEP << "Default BULLY_POPUL  " << SEP << BULLIES_RATIO << ENDL;
         o << "FLOAT" << SEP << "Default HONOR_RATIO  " << SEP << HONOR_RATIO << ENDL;
         if(ONLY3STRAT)
         {
-            o << "FLOAT" << SEP << "Default CALLP_POPUL" << SEP << (1.0 - abs(BULLI_RATIO) - abs(HONOR_RATIO)) << ENDL;
+            o << "FLOAT" << SEP << "Default CALLP_POPUL" << SEP << (1.0 - abs(BULLIES_RATIO) - abs(HONOR_RATIO)) << ENDL;
         }
         else
         {
             o<<"FLOAT"<<SEP<<"Default CALLP_POPUL  "<<SEP<<CALLER_POPU<<ENDL;
-            o << "FLOAT" << SEP << "always give up" << SEP << (1.0 - abs(CALLER_POPU) - abs(BULLI_RATIO) - abs(HONOR_RATIO)) << ENDL;//not really loosers.
+            o << "FLOAT" << SEP << "always give up" << SEP << (1.0 - abs(CALLER_POPU) - abs(BULLIES_RATIO) - abs(HONOR_RATIO)) << ENDL;//not really loosers.
         }
         o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(FAMILY_HONOR?"Yes":"No")<<SEP<<(RESTRICT_FH?"restricted":"for_all")<<ENDL;
     }
@@ -503,7 +504,7 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
      o<<"FLOAT"<<SEP<<"USE_SELECTION"<<SEP<<USED_SELECTION<<ENDL; //Jak bardzo przegrani umierają (0 - brak selekcji w ogóle)
      o<<"BOOL"<<SEP<<"FAMILIES"<<SEP<<(FAMILY_HONOR?"Yes":"No")<<SEP<<(RESTRICT_FH?"restricted":"for_all")<<ENDL;
 
-     if(BULLI_RATIO >= 1) //... CO TO?         TODO?
+     if(BULLIES_RATIO >= 1) //... CO TO?         TODO?
      {                                                                          assert("Dead code called?"==nullptr);
       o<<"FLOAT"<<SEP<<"BULLISM_LIMIT"
        //<<SEP<<BULLISM_LIMIT
@@ -511,16 +512,16 @@ void Parameters_dump(ostream& o,const char* SEP="\t",const char* ENDL="\n",bool 
      }
      else
      {
-      o << "FLOAT" << SEP << "BULLY_POPUL" << SEP << BULLI_RATIO << ENDL; //Albo zero-jedynkowo
+      o << "FLOAT" << SEP << "BULLY_POPUL" << SEP << BULLIES_RATIO << ENDL; //Albo zero-jedynkowo
       o << "FLOAT" << SEP << "HONOR_RATIO" << SEP << HONOR_RATIO << ENDL; //Jaka cześć agentów populacji jest ściśle honorowa
       if(ONLY3STRAT)
       {
-            o << "FLOAT" << SEP << "CALLP_POPUL" << SEP << (1.0 - abs(BULLI_RATIO) - abs(HONOR_RATIO)) << ENDL;
+            o << "FLOAT" << SEP << "CALLP_POPUL" << SEP << (1.0 - abs(BULLIES_RATIO) - abs(HONOR_RATIO)) << ENDL;
       }
       else
       {
             o<<"FLOAT"<<SEP<<"CALLP_POPUL"<<SEP<<CALLER_POPU<<ENDL; //Jaka część wzywa policję, zamiast się od razu poddawać
-            o << "FLOAT" << SEP << "RATIONAL" << SEP << (1.0 - abs(CALLER_POPU) - abs(BULLI_RATIO) - abs(HONOR_RATIO)) << ENDL; //not really the "loosers".
+            o << "FLOAT" << SEP << "RATIONAL" << SEP << (1.0 - abs(CALLER_POPU) - abs(BULLIES_RATIO) - abs(HONOR_RATIO)) << ENDL; //not really the "loosers".
       }
      }
      o<<"FLOAT"<<SEP<<"RATIONALITY"<<SEP<<RATIONALITY<<ENDL<<ENDL; //Czy realistycznie ocenia własną siłę (vs. wg. własnej reputacji)
@@ -918,7 +919,7 @@ void PlotTables(const char* Name1,wb_dynmatrix<FLOAT>& Tab1,
                                   "POL.EFF:%g-%g:%g SEL.:%g-%g:%g (last: B=%g H=%g C=%g) STEPS:%u NREP:%u STATSTART:%u  ",
                                   POLICE_EFFIC_MIN, POLICE_EFFIC_MAX, POLICE_EFFIC_STEP,
                                   SELECTION_MIN, SELECTION_MAX, SELECTION_STEP,
-                                  BULLI_RATIO, HONOR_RATIO, CALLER_POPU,
+                                  BULLIES_RATIO, HONOR_RATIO, CALLER_POPU,
                                   STOP_AFTER,
                                   REPETITION_LIMIT,
                                   STAT_AFTER
@@ -928,7 +929,7 @@ void PlotTables(const char* Name1,wb_dynmatrix<FLOAT>& Tab1,
                                      "POL.EFF:%g-%g:%g PROP:%g-%g:%g (last: B=%g H=%g C=%g Sel=%g) STEPS:%u NREP:%u STATSTART:%u  ",
                                      POLICE_EFFIC_MIN, POLICE_EFFIC_MAX, POLICE_EFFIC_STEP,
                                      PROPORTION_MIN, PROPORTION_MAX, PROPORTION_STEP,
-                                     BULLI_RATIO, HONOR_RATIO, CALLER_POPU,
+                                     BULLIES_RATIO, HONOR_RATIO, CALLER_POPU,
                                      USED_SELECTION,
                                      STOP_AFTER,
                                      REPETITION_LIMIT,
@@ -939,7 +940,7 @@ void PlotTables(const char* Name1,wb_dynmatrix<FLOAT>& Tab1,
                                     "PROP:%g-%g:%g SEL.:%g-%g:%g (last: B=%g H=%g C=%g Sel=%g) STEPS:%u NREP:%u STATSTART:%u  ",
                                     PROPORTION_MIN, PROPORTION_MAX, PROPORTION_STEP,
                                     SELECTION_MIN, SELECTION_MAX, SELECTION_STEP,
-                                    BULLI_RATIO, HONOR_RATIO, CALLER_POPU,
+                                    BULLIES_RATIO, HONOR_RATIO, CALLER_POPU,
                                     USED_SELECTION,
                                     STOP_AFTER,
                                     REPETITION_LIMIT,
@@ -1106,11 +1107,11 @@ void walk_params_prop()
 
    for(FLOAT prop=PROPORTION_MIN,Y=0;prop<=PROPORTION_MAX;prop+=PROPORTION_STEP,Y++)
    {
-       //if(BULLI_RATIO>=0)  //????
-       //            BULLI_RATIO=prop;
+       //if(BULLIES_RATIO>=0)  //????
+       //            BULLIES_RATIO=prop;
 
        if(Compensation_mode)
-       {                                                                               assert(fabs(BULLI_RATIO) >= 0);
+       {                                                                               assert(fabs(BULLIES_RATIO) >= 0);
            HONOR_RATIO= PROPORTION_MAX - prop;
           CALLER_POPU=prop;
        }
@@ -1125,7 +1126,7 @@ void walk_params_prop()
        for(FLOAT efficiency=POLICE_EFFIC_MIN,X=0; efficiency <= POLICE_EFFIC_MAX; efficiency+=POLICE_EFFIC_STEP,X++)
        {
            cout << endl << "SYM: " << Y << ' ' << X << " Prop(H:C): " << HONOR_RATIO << ":" << CALLER_POPU
-                << "\tPEff.: " << efficiency << "\tB:" << BULLI_RATIO << endl;
+                << "\tPEff.: " << efficiency << "\tB:" << BULLIES_RATIO << endl;
            POLICE_EFF=efficiency;
 
            //PĘTLA POWTÓRZEŃ SYMULACJI
@@ -1137,10 +1138,10 @@ void walk_params_prop()
            FLOAT MnPropOfHonor=0;
            FLOAT MnPropOfPCall=0;
            FLOAT MnPropOfOther=0;
-           FLOAT PrevPropOfAggre=abs(BULLI_RATIO);
+           FLOAT PrevPropOfAggre=abs(BULLIES_RATIO);
            FLOAT PrevPropOfHonor=abs(HONOR_RATIO);
            FLOAT PrevPropOfPCall=abs(CALLER_POPU);
-           FLOAT PrevPropOfOther= 1 - abs(BULLI_RATIO) - abs(HONOR_RATIO) - abs(CALLER_POPU);
+           FLOAT PrevPropOfOther= 1 - abs(BULLIES_RATIO) - abs(HONOR_RATIO) - abs(CALLER_POPU);
 
            unsigned StatSteps=0;
 
@@ -1326,10 +1327,10 @@ void walk_params_select()
              double POPULATION=double(SIDE)*SIDE;      //Ile ich w ogóle jest?
                initConnections(SIDE * SIDE * FAR_LINKS_PER_AGENT); //Tworzenie sieci
                initAttributes(SIDE * SIDE); //Losowanie atrybutów dla agentów
-             FLOAT PrevPropOfAggre=abs(BULLI_RATIO);
+             FLOAT PrevPropOfAggre=abs(BULLIES_RATIO);
              FLOAT PrevPropOfHonor=abs(HONOR_RATIO);
              FLOAT PrevPropOfPCall=abs(CALLER_POPU);
-             FLOAT PrevPropOfOther= 1 - abs(BULLI_RATIO) - abs(HONOR_RATIO) - abs(CALLER_POPU);
+             FLOAT PrevPropOfOther= 1 - abs(BULLIES_RATIO) - abs(HONOR_RATIO) - abs(CALLER_POPU);
 
              //CalculateStatistics(World); //Po raz pierwszy dla tych parametrów (TODO DLACZEGO WYKOMENTOWANE???)
              for(step_counter=1;step_counter<=STOP_AFTER; /*step_counter++*/ )
@@ -1523,20 +1524,20 @@ void walk_honor_vs_aggr()
 
        for(FLOAT prop=PROPORTION_MIN,XX=0; prop <= PROPORTION_MAX; prop+=PROPORTION_STEP,XX++)
        {
-            //if(BULLI_RATIO>=0)  //????
-            //            BULLI_RATIO=prop;
+            //if(BULLIES_RATIO>=0)  //????
+            //            BULLIES_RATIO=prop;
 
            if(Compensation_mode)
             {
-                BULLI_RATIO= PROPORTION_MAX - prop;
+                BULLIES_RATIO= PROPORTION_MAX - prop;
                 HONOR_RATIO=prop;
             }
             else
             {
              if(HONOR_RATIO >= 0)
                  HONOR_RATIO=prop;
-             if(BULLI_RATIO >= 0 )
-                 BULLI_RATIO=prop;
+             if(BULLIES_RATIO >= 0 )
+                 BULLIES_RATIO=prop;
             }
 
            cout << endl << "SYM " << YY << ' ' << XX << " Prop: " << prop << "\tSelect.: " << select << endl;
