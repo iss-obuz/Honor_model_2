@@ -315,39 +315,39 @@ void one_step(unsigned long& step_counter)
         {                                                                             assert(AgI.Malice > 0 || AgI.Honor > 0);
            HonorAgent& AgH=HonorAgent::World[y2][x2]; //PL.: Zapamiętanie referencji do agenta zaczepionego
 
-           AgI.changeReputation(+0.05 * TEST_DIVIDER, AgH); //PL.: Od razu dostaje podwyższenie reputacji za samo wyzwanie
+           AgI.changeReputation(+0.05 * TEST_DIVIDER, &AgH); //PL.: Od razu dostaje podwyższenie reputacji za samo wyzwanie
            HonorAgent::Decision Dec2= AgH.answerIfHooked(x1, y1);
 
            switch(Dec2){
            case HonorAgent::FIGHT:
                        if(HonorAgent::firstWin(AgI,AgH))
                        {
-                           AgI.changeReputation(+0.35 * TEST_DIVIDER, AgH); //PL.: Zyskał, bo wygrał
+                           AgI.changeReputation(+0.35 * TEST_DIVIDER, &AgH); //PL.: Zyskał, bo wygrał
                            AgI.HisActions.Successes++;
                            AgI.lossOfPower(-0.75 * TEST_DIVIDER * DRAND()); //PL.: Stracił siły, bo walczył
 
-                           AgH.changeReputation(+0.1 * TEST_DIVIDER, AgI);  //PL.: Zyskał, bo stanął do walki
+                           AgH.changeReputation(+0.1 * TEST_DIVIDER, &AgI);  //PL.: Zyskał, bo stanął do walki
                            AgH.lossOfPower(-0.95 * TEST_DIVIDER * DRAND()); //PL.: Stracił siły, bo przegrał walkę
                            AgH.HisActions.Fails++;
                        }
                        else
                        {
-                           AgI.changeReputation(-0.35 * TEST_DIVIDER, AgH); //PL.: Stracił, bo zaczepił i dostał bęcki
+                           AgI.changeReputation(-0.35 * TEST_DIVIDER, &AgH); //PL.: Stracił, bo zaczepił i dostał bęcki
                            AgI.HisActions.Fails++;
                            AgI.lossOfPower(-0.95 * TEST_DIVIDER * DRAND()); //PL.: Stracił siły, bo przegrał walkę
 
-                           AgH.changeReputation(+0.75 * TEST_DIVIDER, AgI); //PL.: Zyskał, bo wygrał choć był zaczepiony
+                           AgH.changeReputation(+0.75 * TEST_DIVIDER, &AgI); //PL.: Zyskał, bo wygrał choć był zaczepiony
                            AgH.HisActions.Successes++;
                            AgH.lossOfPower(-0.75 * TEST_DIVIDER * DRAND()); //PL.: Stracił siłę, bo walczył
                        }
                     break;
            case HonorAgent::GIVE_UP:
                        {
-                           AgI.changeReputation(+0.5 * TEST_DIVIDER, AgH); //PL.: Zyskał, bo wygrał bez walki.
+                           AgI.changeReputation(+0.5 * TEST_DIVIDER, &AgH); //PL.: Zyskał, bo wygrał bez walki.
                                                                            //PL.: Czy na pewno więcej niż w walce???
                            AgI.HisActions.Successes++;
 
-                           AgH.changeReputation(-0.5 * TEST_DIVIDER, AgI); //PL.: Stracił, bo się poddał
+                           AgH.changeReputation(-0.5 * TEST_DIVIDER, &AgI); //PL.: Stracił, bo się poddał
                            AgH.HisActions.Fails++;
 
                            AgH.lossOfPower(-0.5 * TEST_DIVIDER * DRAND()/*DRAND()*/); //PL.: Ale trochę dostał w ucho dla przykładu   (!!!)
@@ -356,19 +356,19 @@ void one_step(unsigned long& step_counter)
            case HonorAgent::CALL_AUTH:
                       if(DRAND() < POLICE_EFF) //Czy pomoc przybyła?
                       {
-                          AgI.changeReputation(-0.35 * TEST_DIVIDER, AgH); //PL.: Stracił, bo zaczepił i dostał bęcki od policji
+                          AgI.changeReputation(-0.35 * TEST_DIVIDER, &AgH); //PL.: Stracił, bo zaczepił i dostał bęcki od policji
                           AgI.HisActions.Fails++;
                           AgI.lossOfPower(-0.99 * TEST_DIVIDER * DRAND()); //PL.: Stracił siły, bo walczył i przegrał z przeważającą siłą
 
                           AgH.HisActions.Successes++;                     //PL.: Zaczepionemu udało się uniknąć "bęcek", ale...
-                          AgH.changeReputation(-0.75 * TEST_DIVIDER, AgI); //    Stracił reputację, bo wezwał policje, zamiast walczyć
+                          AgH.changeReputation(-0.75 * TEST_DIVIDER, &AgI); //    Stracił reputację, bo wezwał policje, zamiast walczyć
                       }
                       else //PL.: A może policja nie przybyła?
                       {
-                          AgI.changeReputation(+0.5 * TEST_DIVIDER, AgH); //PL.: Zyskał, bo wygrał bez walki.
+                          AgI.changeReputation(+0.5 * TEST_DIVIDER, &AgH); //PL.: Zyskał, bo wygrał bez walki.
                           AgI.HisActions.Successes++;
 
-                          AgH.changeReputation(-0.75 * TEST_DIVIDER, AgI); //PL.: Zaczepiony stracił, bo wezwał policje
+                          AgH.changeReputation(-0.75 * TEST_DIVIDER, &AgI); //PL.: Zaczepiony stracił, bo wezwał policje
                           AgH.lossOfPower(-0.99 * TEST_DIVIDER * DRAND()); //PL.: Stracił, bo się nie bronił, a wkurzył, wzywając policję.
                           AgH.HisActions.Fails++;
                       }
@@ -386,7 +386,7 @@ void one_step(unsigned long& step_counter)
         }
         else  //When the active one didn't bother? PL.: Jak aktywny nie zaczepiał?
         {
-            AgI.changeReputation(-0.0001 * TEST_DIVIDER, *(HonorAgent*)(nullptr) ); //PL.: Minimalnie traci w swoich oczach
+            AgI.changeReputation(-0.0001 * TEST_DIVIDER, nullptr ); //PL.: Minimalnie traci w swoich oczach
         }
     }
 
@@ -669,33 +669,37 @@ void HonorAgent::lossOfPower(double delta)
 /// \details
 /// As used FAMILY_HONOR and the agent is from honor culture, it also changes for the whole family!
 /// PL.: Jak używane FAMILY_HONOR i agent jest honorowy, to zmienia się tak samo całej rodzinie!
-void HonorAgent::changeReputation(double delta, HonorAgent& reason, int /*level==0*/)
+void HonorAgent::changeReputation(double delta, HonorAgent* reason, int /*level==0*/)
 {                                                 //He cannot attack himself! PL.: Sam siebie nie może atakować!
-                                                  assert(this!=&reason); assert(0<=HonorFeiRep); assert(HonorFeiRep<=1);
-#ifdef HONOR_WITHOUT_REPUTATION //For "null hypothesis" tests PL.:
+                                                  assert(this!=reason); assert(0<=HonorFeiRep); assert(HonorFeiRep<=1);
+#ifdef HONOR_WITHOUT_REPUTATION //For "null hypothesis" tests. PL.: Do testów „hipotezy zerowej”.
     if(this->Honor==1) //Honor agent
      {
         return; //nothing to do
      }
 #endif // HONOR_WITHOUT_REPUTATION
     HonorAgent* Cappo=nullptr; //PL.: Przy okazji sprawdzenia, czy ktoś jest w tej rodzinie, ustalamy "Ojca chrzestnego".
-    if( &reason != nullptr
+    if( reason != nullptr
         && isUsingFamilyHonor() //The use of family honor depends on the parameters and optional properties of the agent. PL.:
-    && !isMyFamilyMember(reason, Cappo) ) //PL.: Jeżeli działa honor rodzinny to ...
+    && !isMyFamilyMember(*reason, Cappo) ) //PL.: Jeżeli działa honor rodzinny to ...
     {
-        if(Cappo==nullptr) //PL.: Nie ma żyjącego ojca. Tu ślad się urywa.
+        if(Cappo==nullptr) //There is no living father. Here the trail ends. PL.: Nie ma żyjącego ojca. Tu ślad się urywa.
         {
             Cappo = this;
         }
-        this->FamColor=Cappo->Color; //PL.: Jak mamy jeszcze jakiegoś cappo to przyjmujemy jego kolor.
-        Cappo->changeReputationThruFamily(delta); //PL.: Ale może mieć dzieci...
+
+        this->FamColor=Cappo->Color; //If we have any cappo, we take its color (or self-color).
+                                     // PL.: Jak mamy jeszcze jakiegoś cappo to przyjmujemy jego kolor (lub swój).
+
+        Cappo->changeReputationThruFamily(delta); //A found or adopted cappo may have children...
+                                                  // PL.: Znaleziony lub przyjęty cappo może mieć dzieci...
     }
     else
-    if(delta > 0) //PL.: Wzrost reputacji.
+    if(delta > 0) //Reputation increase. PL.: Wzrost reputacji.
     {
         HonorFeiRep+= (1-HonorFeiRep) * delta;                                                 assert(HonorFeiRep <= 1);
     }
-    else       //PL.: Spadek reputacji.
+    else       //Reputation decrease. PL.: Spadek reputacji.
     {
         HonorFeiRep-=HonorFeiRep*fabs(delta);                                                  assert(0 <= HonorFeiRep);
         /* Spr.-> */                                                                             assert(HonorFeiRep<=1);

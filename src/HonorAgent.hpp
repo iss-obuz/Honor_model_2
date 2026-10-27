@@ -223,7 +223,7 @@ class HonorAgent
     // Methods for making decision. PL.: Metody podejmowania decyzji.
     Decision  checkPartner(unsigned& x, unsigned& y); //!< Choice of interaction partner. PL.: Wybór partnera interakcji.
     Decision  answerIfHooked(unsigned x, unsigned y); //!< The answer to provocation. PL.: Odpowiedź na zaczepkę.
-    void      changeReputation(double delta, HonorAgent& reason, int level= 0); //!< Reputation increase or decrease with scope checking, optionally with families.
+    void      changeReputation(double delta, HonorAgent* reason, int level= 0); //!< Reputation increase or decrease with scope checking, optionally with families.
                                                       //!< PL.: Wzrost lub spadek reputacji z zabezpieczeniem zakresu i ewentualnym dziedziczeniem.
     void      lossOfPower(double delta);  //!< A decrease of the power with range protection.
                                          //!< PL.: Spadek, zużycie siły z zabezpieczeniem zera.
